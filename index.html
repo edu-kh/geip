@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Moul&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Battambang&family=Moul&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<title>Geip</title>
+<style>
+   
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f6fa;
+        margin: 0;
+        font-family: "Battambang", system-ui;
+    }
+    header {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 10;
+        font-family: "Battambang", system-ui;
+        
+    }
+    .container {
+        display: flex;
+        gap: 20px;
+        padding: 15px;
+        font-family: "Battambang", system-ui;
+        
+    }
+    .panel {
+        background: white;
+        border-radius: 10px;
+        padding: 0;
+        flex: 1;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 80px);
+        
+    }
+    .panel-list{
+         max-height: calc(40vh - 80px);
+    }
+    .student-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 10px;
+        z-index: 5;
+        border-bottom: 1px solid #ddd;
+        font-family: "Battambang", system-ui;
+        display: flex;
+    }
+    .student-list {
+        height: 20px;
+        overflow-y: auto;
+        flex: 1;
+        padding: 5px;
+       
+    }
+   
+    
+    .student-item {
+        
+         display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 10px;
+      border-bottom: 1px solid #bbb;
+      background: #f1f1f1c2;
+      border-radius: 6px;
+      margin-bottom: 3px;
+      font-family: "Battambang", system-ui;
+      
+    }
+    .btn-blue {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+         font-family: "Battambang", system-ui;
+    }
+    .btn-gray {
+        background: #e0e0e0;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+         font-size: 1rem;
+         color: #007bff;
+          font-family: "Battambang", system-ui;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      background-color: rgb(19, 80, 54);
+      color: white;
+    }
+     
+
+    button a{
+   color: #007bff;;
+  text-decoration: none;
+}
+button a:hover{
+    color: #f5f6fa;
+}
+    .score-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+    }
+    .score-box {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    input[type="number"], input[type="text"], select {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: "Battambang", system-ui;
+        font-size: 1rem;
+    }
+    @media(max-width: 768px) {
+        .container { flex-direction: column; }
+        header { flex-wrap: wrap; }
+    }
+    
+    #subjectQuick{
+        height: 0;
+        width: 0;
+        opacity: 0;
+    }
+    #studentInfoPanel{
+    display:none;
+
+}
+.class-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: white;
+}
+
+.class-option {
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+    background: #f1f1f1;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: "Battambang", system-ui;
+}
+
+.class-option:hover {
+    background: #007bff;
+    color: white;
+}
+
+#monthSelect {
+    display: none;
+}
+.class-grid{
+    transition: all 0.3s ease;
+}
+</style>
+</head> 
+<body>
+
+<header>
+    
+    <label style="width:100%;"><span>វិ. ហស​ មិត្តភាព (Geip)</span>
+         <button type="button" id="toggleClasses" class="btn-blue">
+    បង្ហាញថ្នាក់
+</button>
+
+   <div class="class-grid" id="classGrid" style="display:none;">
+       
+        <div class="class-option">7A</div>
+        <div class="class-option">7B</div>
+        <div class="class-option">7C</div>
+
+        <div class="class-option">7D</div>
+        <div class="class-option">7E</div>
+        <div class="class-option">7F</div>
+
+        <div class="class-option">7G</div>
+        <div class="class-option">7H</div>
+        <div class="class-option">7I</div>
+
+        <div class="class-option">8A</div>
+        <div class="class-option">8B</div>
+        <div class="class-option">8C</div>
+
+        <div class="class-option">8D</div>
+        <div class="class-option">8E</div>
+        <div class="class-option">8F</div>
+
+        <div class="class-option">8G</div>
+        <div class="class-option">8H</div>
+        <div class="class-option">8I</div>
+
+        <div class="class-option">9A</div>
+        <div class="class-option">9B</div>
+        <div class="class-option">9C</div>
+
+        <div class="class-option">9D</div>
+        <div class="class-option">9E</div>
+        <div class="class-option">9F</div>
+
+        <div class="class-option">10A</div>
+        <div class="class-option">10B</div>
+        <div class="class-option">10C</div>
+
+        <div class="class-option">10D</div>
+        <div class="class-option">10E</div>
+        <div class="class-option">10F</div>
+
+        <div class="class-option">11A</div>
+        <div class="class-option">11B</div>
+        <div class="class-option">11C</div>
+
+        <div class="class-option">11D</div>
+        <div class="class-option">11E</div>
+        <div class="class-option">11F</div>
+
+        <div class="class-option">12A</div>
+        <div class="class-option">12B</div>
+        <div class="class-option">12C</div>
+
+        <div class="class-option">12D</div>
+        <div class="class-option">12E</div>
+        <div class="class-option">12F</div>
+    </div>
+
+    <input type="hidden" id="monthSelect">
+</label>
+   
+       <select id="subjectQuick"></select>  
+    </label>
+    <span id="quickScore" placeholder="" style="width: 0px;"> </span>
+   <h4 id="selectedStudenth" style="padding: 0px px; margin-top: -5px; margin-bottom: -5px; overflow-y: auto; font-size: 0px; border: none;"></h4>
+     <span id="saveListScores"> </span>
+
+    <!--<button class="btn-blue" id="applyQuick" ></button>-->
+   <span id="applyQuick"></span>
+    <!--<button class="btn-gray" ><a href="https://edu-kh.github.io/student-attendant/">ស្រង់អវត្តមាន</a></button> -->
+    <span id="saveStatush" style="margin-left:10px;color:green;font-weight:bold;"></span>
+</header>
+
+<div class="container">
+    <!-- Student List -->
+    <div class="panel panel-list" style="flex:1;">
+        <div class="student-header">
+            <input type="text" id="searchName" placeholder="ស្វែងរកឈ្មោះសិស្ស..." style=" margin-bottom:5px;">
+           <button class="btn-blue" id="reloadBtn" style="margin-top:5px;">Reload</button>
+        </div>
+        <div id="studentList" class="student-list"></div>
+    </div>
+
+    <!-- Student Info Editor -->
+   <div class="panel" id="studentInfoPanel">
+    <div class="panel-top" style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #ddd;">
+        <h4 id="selectedStudent">គ្មានឈ្មោះសិស្ស</h4>
+        <div style="display:flex; gap:5px;">
+            <button class="btn-gray" id="prevStudent"><i class="fa fa-chevron-left"></i></button>
+             <div style="padding: 0px; border-top: 1px solid #ddd;">
+          
+        <button class="btn-blue" id="saveBtn">រក្សាទុក</button>
+        
+       
+    </div>
+            <button class="btn-gray" id="nextStudent"><i class="fa fa-chevron-right"></i></button>
+        </div>
+        
+    </div>
+   
+    <div style="padding: 15px; flex: 1; overflow-y: auto;">
+        <div id="scoresGrid" class="score-grid"></div>
+    </div>
+    <div style="padding: 15px; border-top: 1px solid #ddd;">
+       
+        <button class="btn-gray" id="resetBtn">សម្អាត</button>
+        <span id="saveStatus" style="margin-left:10px;color:green;font-weight:bold;"></span>
+    </div>
+</div>
+
+<script>
+const SHEET_API_BASE = 'https://script.google.com/macros/s/AKfycbyLXMmehBAPFRlmCV_kdBQy9pu8NYILe1H7hVePS9QUHYuXoOuzfEUIngPvTkXvHZCMIw/exec';
+
+// 13 subjects
+const SUBJECTS = [
+   "ឈ្មោះឪពុក", "មុខរបរឪពុក", "លេខទូរស័ព្ទឪពុក",
+   "ឈ្មោះម្តាយ", "មុខរបរម្តាយ", "លេខទូរស័ព្ទម្តាយ",
+   "ថ្ងៃខែឆ្នាំកំណើត", "ទីកន្លែងកំណើត", "អាសយដ្ឋាន",
+   "ភេទ", "ថ្នាក់រៀន", "អត្តលេខ", "ភាសាបរទេស"
+];
+
+let currentStudent = null;
+let scores = {};
+const monthSelect = document.getElementById('monthSelect');
+
+let listScores = {};
+
+function loadStudents() {
+    document.getElementById('studentList').innerHTML = '';
+    listScores = {};
+
+    fetch(`${SHEET_API_BASE}?action=getStudents&month=${monthSelect.value}`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(name => {
+                let div = document.createElement('div');
+                div.className = 'student-item';
+                div.innerHTML = `
+                    <span style="flex:1;">${name}</span>
+                    <input type="number" class="student-score" placeholder="ព័ត៌មាន" style="width:60px; margin-right:15px;">
+                    <button class="btn-gray">ជ្រើសរើស</button>
+                `;
+
+                // Select student for right panel
+                div.querySelector('button').onclick = () => selectStudent(name);
+
+                // Track score entry
+                div.querySelector('.student-score').oninput = e => {
+                    listScores[name] = e.target.value;
+                };
+
+                document.getElementById('studentList').appendChild(div);
+            });
+        });
+}
+
+document.querySelectorAll('.class-option').forEach(btn => {
+    btn.onclick = () => {
+
+        document.querySelectorAll('.class-option').forEach(b => {
+            b.style.background = '#f1f1f1';
+            b.style.color = 'black';
+        });
+
+        btn.style.background = '#007bff';
+        btn.style.color = 'white';
+
+        document.getElementById('monthSelect').value = btn.textContent;
+    
+
+        loadStudents();
+    };
+});
+    const toggleBtn = document.getElementById('toggleClasses');
+const classGrid = document.getElementById('classGrid');
+
+toggleBtn.onclick = () => {
+
+    if (classGrid.style.display === 'none') {
+        classGrid.style.display = 'grid';
+        toggleBtn.textContent = 'លាក់ថ្នាក់';
+    } else {
+        classGrid.style.display = 'none';
+        toggleBtn.textContent = 'បង្ហាញថ្នាក់';
+    }
+
+};
+
+function loadStudents() {
+    const reloadBtn = document.getElementById('reloadBtn');
+    const studentListEl = document.getElementById('studentList');
+
+    // Show waiting state
+    reloadBtn.disabled = true;
+    reloadBtn.textContent = 'Loading'; // Loading...
+    studentListEl.innerHTML = '<div style="padding:10px; color:black; font-size: 1rem">កំពុងទាញឈ្មោះសិស្ស! សូមរង់ចាំ...</div>';
+
+    studentNames = [];
+    currentIndex = -1;
+
+    fetch(`${SHEET_API_BASE}?action=getStudents&month=${monthSelect.value}`)
+        .then(res => res.json())
+        .then(data => {
+            studentNames = data;
+            studentListEl.innerHTML = ''; // Clear loading text
+
+            data.forEach(name => {
+                let div = document.createElement('div');
+                div.className = 'student-item';
+                div.innerHTML = `
+                    <span style="flex:1;">${name}</span>
+                    <span class="student-score" ><span>
+                    <button class="btn-gray">ជ្រើសរើស</button>
+                `;
+
+                div.querySelector('button').onclick = () => {
+                    currentIndex = studentNames.indexOf(name);
+                    selectStudent(name);
+                };
+
+                div.querySelector('.student-score').oninput = e => {
+                    listScores[name] = e.target.value;
+                };
+
+                studentListEl.appendChild(div);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            studentListEl.innerHTML = '<div style="padding:10px; color:red;">❌ សូមជ្រើសរើសថ្នាក់រៀន</div>';
+        })
+        .finally(() => {
+            reloadBtn.disabled = false;
+            reloadBtn.textContent = 'Reload';
+        });
+}
+
+
+document.getElementById('prevStudent').onclick = () => {
+    if (!studentNames.length) return;
+    currentIndex = currentIndex > 0 ? currentIndex - 1 : studentNames.length - 1;
+    selectStudent(studentNames[currentIndex]);
+};
+
+document.getElementById('nextStudent').onclick = () => {
+    if (!studentNames.length) return;
+    currentIndex = currentIndex < studentNames.length - 1 ? currentIndex + 1 : 0;
+    selectStudent(studentNames[currentIndex]);
+};
+
+
+async function saveListScoresMerged() {
+    const statusMsg = document.getElementById('saveStatush');
+    statusMsg.style.color = 'blue';
+    statusMsg.textContent = 'កំពុងរក្សាទុក....';
+
+    const selectedSubject = document.getElementById('subjectQuick').value;
+    if (!selectedSubject) {
+        statusMsg.style.color = 'red';
+        statusMsg.textContent = '⚠ សូមជ្រើសរើសមុខវិជ្ជាមុន!';
+        return;
+    }
+
+    // Get all scores for the month once
+    let allScores = {};
+    try {
+        let res = await fetch(`${SHEET_API_BASE}?action=getAllScores&month=${monthSelect.value}`);
+        let data = await res.json();
+        allScores = data || {};
+    } catch (err) {
+        console.error("Failed to fetch all scores", err);
+        statusMsg.style.color = 'red';
+        statusMsg.textContent = '❌ មិនអាចទាញទិន្នន័យបាន!';
+        return;
+    }
+
+    // Collect updated scores from list
+    let updatedScores = {};
+    document.querySelectorAll('.student-item').forEach(item => {
+        let studentName = item.querySelector('span').textContent.trim();
+        let scoreValue = item.querySelector('.student-score').value.trim();
+        if (scoreValue !== '') {
+            if (!allScores[studentName]) allScores[studentName] = {};
+            allScores[studentName][selectedSubject] = scoreValue;
+            updatedScores[studentName] = allScores[studentName];
+        }
+    });
+
+    if (Object.keys(updatedScores).length === 0) {
+        statusMsg.style.color = 'red';
+        statusMsg.textContent = '⚠ មិនមានព័ត៌មានសម្រាប់រក្សាទុក!';
+        return;
+    }
+
+    // Save all updates in one request
+    try {
+        await fetch(`${SHEET_API_BASE}?action=saveScoresBatch&month=${monthSelect.value}`, {
+            method: 'POST',
+            body: JSON.stringify(updatedScores)
+        });
+        statusMsg.style.color = 'green';
+        statusMsg.textContent = '✅ ជោកជ៍យ!';
+        document.querySelectorAll('.student-score').forEach(input => input.value = '');
+        return;
+    } catch (err) {
+        console.error(err);
+        statusMsg.style.color = 'red';
+        statusMsg.textContent = '❌ ការរក្សាទុកបរាជ័យ!';
+    }
+
+    setTimeout(() => statusMsg.textContent = '', 2000);
+}
+
+
+
+
+
+
+document.getElementById('saveListScores').onclick = saveListScoresMerged;
+
+
+document.getElementById('monthSelect').addEventListener('input', () => {
+    document.getElementById('studentInfoPanel').style.display = 'none';
+    loadStudents();
+    document.getElementById('selectedStudent').textContent = 'គ្មានឈ្មោះសិស្ស';
+    currentStudent = null;
+    scores = {};
+    renderScores();
+});
+
+function selectStudent(name) {
+    document.getElementById('studentInfoPanel').style.display = 'flex';
+    currentStudent = name;
+    document.getElementById('selectedStudenth').textContent = name;
+    document.getElementById('selectedStudent').textContent = name;
+    scores = {};
+   
+    // Clear quick score box when selecting another student
+    document.getElementById('quickScore').value = '';
+    
+    renderScores();
+    
+    fetch(`${SHEET_API_BASE}?action=getScores&month=${monthSelect.value}&studentName=${encodeURIComponent(name)}`)
+        .then(res => res.json())
+        .then(data => {
+            scores = data.scores || {};
+            renderScores();
+            
+        });
+}
+
+
+function renderScores() {
+    let grid = document.getElementById('scoresGrid');
+    grid.innerHTML = '';
+
+    SUBJECTS.forEach(sub => {
+        let div = document.createElement('div');
+        div.className = 'score-box';
+
+        let fieldHTML = "";
+
+        // Dropdown for gender
+        if(sub === "ភេទ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="">ជ្រើសរើស</option>
+                    <option value="ប្រុស" ${scores[sub]=="ប្រុស" ? "selected" : ""}>ប្រុស</option>
+                    <option value="ស្រី" ${scores[sub]=="ស្រី" ? "selected" : ""}>ស្រី</option>
+                </select>
+            `;
+            
+        }
+
+        // Date input
+        else if(sub === "ថ្ងៃខែឆ្នាំកំណើត"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <input type="date"  value="${scores[sub] || ''}">
+            `;
+        }
+
+        // Dropdown for class
+        else if(sub === "ថ្នាក់រៀន"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select >
+                    <option value="">ជ្រើសរើសថ្នាក់</option>
+                    <option value="7A" ${scores[sub]=="7A" ? "selected" : ""}>7A</option>
+                    <option value="7B" ${scores[sub]=="7B" ? "selected" : ""}>7B</option>
+                    <option value="8A" ${scores[sub]=="8A" ? "selected" : ""}>8A</option>
+                    <option value="9A" ${scores[sub]=="9A" ? "selected" : ""}>9A</option>
+                </select>
+            `;
+        }
+
+        // Default text input
+        else {
+            fieldHTML = `
+                <label>${sub}</label>
+                <input type="text" value="${scores[sub] || ''}">
+            `;
+        }
+
+        div.innerHTML = fieldHTML;
+
+        let input = div.querySelector('input, select');
+        input.oninput = e => scores[sub] = e.target.value;
+
+        grid.appendChild(div);
+    });
+}
+
+
+function saveToSheet() {
+    const btn = document.getElementById('saveBtn');
+    
+    const statusMsg = document.getElementById('saveStatus');
+      const statusMsgh = document.getElementById('saveStatush');
+// Validate all required fields
+for (let key of SUBJECTS) {
+
+    if (!scores[key] || scores[key].toString().trim() === "") {
+
+        statusMsg.style.color = 'red';
+
+        statusMsg.textContent = '⚠ សូមបំពេញព័ត៌មានទាំងអស់';
+
+        return;
+    }
+}
+    if (!currentStudent) {
+        btn.textContent = 'មិនទាន់ជ្រើសសិស្ស!';
+       
+        btn.style.backgroundColor = '#e74c3c'; // red
+         
+         
+        setTimeout(() => {
+            btn.textContent = 'រក្សាទុក';
+            btn.style.backgroundColor = ''; // reset
+             
+            
+           
+        }, 1500);
+        return;
+    }
+       btn.disabled = true;
+    statusMsg.style.color = 'green';
+    statusMsg.textContent = 'ជោគជ័យ';
+    statusMsgh.style.color = 'green';
+    statusMsgh.textContent = 'ជោគជ័យ';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        statusMsg.textContent = '';
+         statusMsgh.textContent = '';
+    }, 1500);
+        document.getElementById('quickScore').value = '';
+    // Instant save feedback
+    btn.textContent = 'រក្សាទុក';
+    btn.disabled = true;
+
+    // Send to Google Sheet in background
+    fetch(`${SHEET_API_BASE}?action=saveScores&month=${monthSelect.value}`, {
+        method: 'POST',
+        body: JSON.stringify({ studentName: currentStudent, scores })
+    }).catch(() => {
+        console.error('Save failed');
+    });
+
+    // Reset button quickly
+    setTimeout(() => {
+        btn.textContent = 'រក្សាទុក';
+        btn.disabled = false;
+    }, 500);
+}
+
+
+
+document.getElementById('applyQuick').onclick = () => {
+    let sub = document.getElementById('subjectQuick').value;
+    let val = document.getElementById('quickScore').value;
+    scores[sub] = val;
+    renderScores();
+    saveToSheet(); // Auto save after quick score entry
+};
+
+document.getElementById('saveBtn').onclick = saveToSheet;
+
+document.getElementById('resetBtn').onclick = () => {
+    scores = {};
+    renderScores();
+};
+
+document.getElementById('reloadBtn').onclick = loadStudents;
+
+document.getElementById('searchName').oninput = e => {
+    let term = e.target.value.toLowerCase();
+    [...document.getElementById('studentList').children].forEach(div => {
+        div.style.display = div.textContent.toLowerCase().includes(term) ? '' : 'none';
+    });
+};
+
+// Fill quick subject dropdown
+const subjectQuickSelect = document.getElementById('subjectQuick');
+subjectQuickSelect.innerHTML = SUBJECTS.map(s => `<option>${s}</option>`).join("");
+
+loadStudents();
+renderScores();
+
+
+
+
+</script>
+</body>
+</html>
