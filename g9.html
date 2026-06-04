@@ -246,7 +246,7 @@
         <h2 style="color:green;">✅ រក្សាទុកជោគជ័យ</h2>
         <p>ទិន្នន័យត្រូវបានរក្សាទុកទៅ Google Sheet</p>
         <button id="closePopupBtn" class="btn-blue" style="margin-top:15px;">
-            បិទផ្তাহ់
+            បិទផ្ទាំង
         </button>
     </div>
 </div>
@@ -317,7 +317,7 @@ function loadStudents() {
         })
         .catch(err => {
             console.error(err);
-            studentListEl.innerHTML = '<div style="padding:10px; color:red;"> សូមជ្រើសរើសថ្នាក់រៀន⚠️</div>';
+            studentListEl.innerHTML = '<div style="padding:10px; color:red;"> សូមចុច Reload⚠️</div>';
         })
         .finally(() => {
             reloadBtn.disabled = false;
@@ -387,20 +387,20 @@ function applySchoolLogic() {
     let school = scores["ឈ្មោះសាលា"] || "";
     
     // បើសិនជាជ្រើសរើសយកឈ្មោះសាលាផ្សេងៗ (ក្រៅពី a, b, c) ហើយមិនមែនជាទទេ នោះចាត់ទុកជា 'other'
-    let isOther = school !== "" && school !== "a" && school !== "b" && school !== "c";
+    let isOther = school !== "" && school !== "បឋមផ្សារលើ" && school !== "បឋមមិត្តភាព" && school !== "វិ.ហសមិត្តភាព";
     
-    if (school === "a" || school === "b") {
-        scores["ចំណុះឬក្រៅ"] = "A";
-        scores["មកពីសាលា"] = "A";
-    } else if (school === "c") {
-        scores["ចំណុះឬក្រៅ"] = "C";
-        scores["មកពីសាលា"] = "A";
+    if (school === "បឋមផ្សារលើ" || school === "បឋមមិត្តភាព") {
+        scores["ចំណុះឬក្រៅ"] = "បឋមចំណុះ";
+        scores["មកពីសាលា"] = "សាលាគោលដៅ";
+    } else if (school === "វិ.ហសមិត្តភាព") {
+        scores["ចំណុះឬក្រៅ"] = "អនុវិ.ចំណុះ";
+        scores["មកពីសាលា"] = "សាលាគោលដៅ";
     } else if (isOther) {
         // ប្រសិនបើធ្លាប់ជ្រើសរើសយក D ឬ E រួចហើយ មិនបាច់ដូរទេ បើមិនទាន់មានឲ្យយក D
-        if (scores["ចំណុះឬក្រៅ"] !== "D" && scores["ចំណុះឬក្រៅ"] !== "E") {
-            scores["ចំណុះឬក្រៅ"] = "D"; 
+        if (scores["ចំណុះឬក្រៅ"] !== "បឋមក្រៅចំណុះ" && scores["ចំណុះឬក្រៅ"] !== "អនុវិ.ក្រៅចំណុះ") {
+            scores["ចំណុះឬក្រៅ"] = "បឋមក្រៅចំណុះ"; 
         }
-        scores["មកពីសាលា"] = "C";
+        scores["មកពីសាលា"] = "សាលាក្រៅគោលដៅ";
     }
 }
 
@@ -411,7 +411,7 @@ function renderScores() {
     // ពិនិត្យមើលថាតើឈ្មោះសាលាបច្ចុប្បន្នជាប្រភេទ 'other' ឬអត់
     let currentSchool = scores["ឈ្មោះសាលា"] || "";
     // បើឈ្មោះសាលាមិនមែនទទេ ហើយមិនមែនជា a, b, c ឬជម្រើសបណ្តោះអាសន្ន គឺវាជាប្រភេទវាយអក្សរ (Other)
-    let isOtherSchool = (currentSchool !== "" && currentSchool !== "a" && currentSchool !== "b" && currentSchool !== "c") || (scores["_isOtherMode"] === true);
+    let isOtherSchool = (currentSchool !== "" && currentSchool !== "បឋមផ្សារលើ" && currentSchool !== "បឋមមិត្តភាព" && currentSchool !== "បឋមអូរត្រេះ" && currentSchool !== "វិ.ហសមិត្តភាព") || (scores["_isOtherMode"] === true);
 
     SUBJECTS.forEach(sub => {
         let div = document.createElement('div');
@@ -431,7 +431,7 @@ function renderScores() {
             fieldHTML = `
                 <label>${sub}</label>
                 <select>
-                    <option value="">ជ្រើសរើស</option>
+                    <option value="" >ជ្រើសរើស</option>
                     <option value="X" ${scores[sub]=="X" ? "selected" : ""}>X</option>
                     <option value="✓" ${scores[sub]=="✓" ? "selected" : ""}>✓</option>
                 </select>
@@ -451,10 +451,11 @@ function renderScores() {
                     <label>${sub}</label>
                     <select>
                         <option value="">ជ្រើសរើស</option>
-                        <option value="a" ${scores[sub]=="a" ? "selected" : ""}>a</option>
-                        <option value="b" ${scores[sub]=="b" ? "selected" : ""}>b</option>
-                        <option value="c" ${scores[sub]=="c" ? "selected" : ""}>c</option>
-                        <option value="other">other</option>
+                        <option value="បឋមផ្សារលើ" ${scores[sub]=="បឋមផ្សារលើ" ? "selected" : ""}>បឋមផ្សារលើ</option>
+                        <option value="បឋមមិត្តភាព" ${scores[sub]=="បឋមមិត្តភាព" ? "selected" : ""}>បឋមមិត្តភាព</option>
+                        <option value="បឋមអូរត្រេះ" ${scores[sub]=="បឋមអូរត្រេះ" ? "selected" : ""}>បឋមអូរត្រេះ</option>
+                        <option value="វិ.ហសមិត្តភាព" ${scores[sub]=="វិ.ហសមិត្តភាព" ? "selected" : ""}>វិ.ហសមិត្តភាព</option>
+                        <option value="other">សាលាផ្សេង</option>
                     </select>
                 `;
             }
@@ -465,30 +466,30 @@ function renderScores() {
                     <label>${sub}</label>
                     <select>
                         <option value="">ជ្រើសរើស</option>
-                        <option value="D" ${scores[sub]=="D" ? "selected" : ""}>D</option>
-                        <option value="E" ${scores[sub]=="E" ? "selected" : ""}>E</option>
+                        <option value="បឋមក្រៅចំណុះ" ${scores[sub]=="បឋមក្រៅចំណុះ" ? "selected" : ""}>បឋមក្រៅចំណុះ</option>
+                        <option value="អនុវិ.ក្រៅចំណុះ" ${scores[sub]=="អនុវិ.ក្រៅចំណុះ" ? "selected" : ""}>អនុវិ.ក្រៅចំណុះ</option>
                     </select>
                 `;
             } else {
-                let isDisabled = (currentSchool === "a" || currentSchool === "b" || currentSchool === "c") ? "disabled" : "";
+                let isDisabled = (currentSchool === "បឋមផ្សារលើ" || currentSchool === "បឋមមិត្តភាព" || currentSchool === "បឋមអូរត្រេះ" || currentSchool === "វិ.ហសមិត្តភាព") ? "disabled" : "";
                 fieldHTML = `
                     <label>${sub}</label>
                     <select ${isDisabled}>
                         <option value="">ជ្រើសរើស</option>
-                        <option value="A" ${scores[sub]=="A" ? "selected" : ""}>A</option>
-                        <option value="C" ${scores[sub]=="C" ? "selected" : ""}>C</option>
+                        <option value="បឋមចំណុះ" ${scores[sub]=="បឋមចំណុះ" ? "selected" : ""}>បឋមចំណុះ</option>
+                        <option value="អនុវិ.ចំណុះ" ${scores[sub]=="អនុវិ.ចំណុះ" ? "selected" : ""}>អនុវិ.ចំណុះ</option>
                     </select>
                 `;
             }
         }
         else if(sub === "មកពីសាលា"){
-            let isDisabled = (currentSchool === "a" || currentSchool === "b" || currentSchool === "c" || isOtherSchool) ? "disabled" : "";
+            let isDisabled = (currentSchool === "បឋមផ្សារលើ" || currentSchool === "បឋមមិត្តភាព" || currentSchool === "បឋមអូរត្រេះ" || currentSchool === "វិ.ហសមិត្តភាព" || isOtherSchool) ? "disabled" : "";
             fieldHTML = `
                 <label>${sub}</label>
                 <select ${isDisabled}>
                     <option value="">ជ្រើសរើស</option>
-                    <option value="A" ${scores[sub]=="A" ? "selected" : ""}>A</option>
-                    <option value="C" ${scores[sub]=="C" ? "selected" : ""}>C</option>
+                    <option value="សាលាគោលដៅ" ${scores[sub]=="សាលាគោលដៅ" ? "selected" : ""}>សាលាគោលដៅ</option>
+                    <option value="សាលាក្រៅគោលដៅ" ${scores[sub]=="សាលាក្រៅគោលដៅ" ? "selected" : ""}>សាលាក្រៅគោលដៅ</option>
                 </select>
             `;
         }
@@ -530,7 +531,7 @@ function renderScores() {
                     
                     // កំណត់លក្ខខណ្ឌស្វ័យប្រវត្តិតាម Logic 
                     scores["ចំណុះឬក្រៅ"] = ""; 
-                    scores["មកពីសាលា"] = "C";   
+                    scores["មកពីសាលា"] = "សាលាក្រៅគោលដៅ";   
                     
                     renderScores(); 
                     
@@ -547,12 +548,12 @@ function renderScores() {
                     }
 
                     // ដំណើរការលក្ខខណ្ឌស្វ័យប្រវត្តិសម្រាប់ការជ្រើសរើស a, b, c
-                    if (value === "a" || value === "b") {
-                        scores["ចំណុះឬក្រៅ"] = "A";
-                        scores["មកពីសាលា"] = "A";
-                    } else if (value === "c") {
-                        scores["ចំណុះឬក្រៅ"] = "C";
-                        scores["មកពីសាលា"] = "A";
+                    if (value === "បឋមផ្សារលើ" || value === "បឋមមិត្តភាព" || value === "បឋមអូរត្រេះ" ) {
+                        scores["ចំណុះឬក្រៅ"] = "បឋមចំណុះ";
+                        scores["មកពីសាលា"] = "សាលាគោលដៅ";
+                    } else if (value === "វិ.ហសមិត្តភាព") {
+                        scores["ចំណុះឬក្រៅ"] = "អនុវិ.ចំណុះ";
+                        scores["មកពីសាលា"] = "សាលាគោលដៅ";
                     }
                     
                     // ប្រសិនបើមិនមែននៅក្នុង TextBox mode ទេ ធ្វើការ Render ឡើងវិញដើម្បីឱ្យដំណើរការ control statuses
