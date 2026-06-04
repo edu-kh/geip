@@ -179,8 +179,6 @@
 
 <header>
     <label style="width:100%; color: #8efdf0;"><span>វិ. ហស​ មិត្តភាព (Geip) <a href="index.html" style="color: aliceblue; list-style-type: none;" >🏡ទំព័រដើម</a></span>
-       
-    
          <input type="hidden" id="monthSelect" value="7A">
          <button class="btn-gray" id="backToList" style="display:none;">← Back</button>
     <span id="saveStatush" style="margin-left:10px;color:green;font-weight:bold;"></span>
@@ -209,7 +207,6 @@
             <div style="display:flex;align-items:center;gap:8px;"><h4 id="selectedStudent">គ្មានឈ្មោះសិស្ស</h4></div>
             <div style="display:flex; gap:5px;">
                 <button class="btn-gray" id="prevStudent"><i class="fa fa-chevron-left"></i></button>
-               
                 <button class="btn-gray" id="nextStudent"><i class="fa fa-chevron-right"></i></button>
             </div>
         </div>
@@ -222,7 +219,6 @@
             <button class="btn-blue" id="saveBtn">រក្សាទុក</button>
             <span id="saveStatus" style="margin-left:10px;color:green;font-weight:bold;"></span>
         </div>
-        
     </div>
 </div>
 
@@ -250,7 +246,7 @@
         <h2 style="color:green;">✅ រក្សាទុកជោគជ័យ</h2>
         <p>ទិន្នន័យត្រូវបានរក្សាទុកទៅ Google Sheet</p>
         <button id="closePopupBtn" class="btn-blue" style="margin-top:15px;">
-            បិទផ្ទាំង
+            បិទផ្তাহ់
         </button>
     </div>
 </div>
@@ -258,23 +254,20 @@
 <script>
 const SHEET_API_BASE = 'https://script.google.com/macros/s/AKfycbykocE9owoUFQRTE4wOFM_6CWD_MbMXapaCZtd8bInueNb1A9aryaKzWphbxgErECsFXg/exec';
 
-// 13 subjects / fields
 const SUBJECTS = [
    "ភេទ", "ថ្ងៃខែឆ្នាំកំណើត", "ថ្នាក់រៀនទី",
-   "ឈ្មោះម្តាយ", "មុខរបរម្តាយ", "លេខទូរស័ព្ទម្តាយ",
-   "ថ្ងៃខែឆ្នាំកំណើត", "ទីកន្លែងកំណើត", "អាសយដ្ឋាន",
+   "PISA", "ឈ្មោះសាលា", "ចំណុះឬក្រៅ",
+   "មកពីសាលា", "ទីកន្លែងកំណើត", "អាសយដ្ឋាន",
    "ភេទ", "ថ្នាក់រៀន", "អត្តលេខ", "ភាសាបរទេស",
    "ភេទ", "ថ្ងៃខែឆ្នាំកំណើត", "ថ្នាក់រៀនទី",
    "ឈ្មោះម្តាយ", "មុខរបរម្តាយ", "លេខទូរស័ព្ទម្តាយ",
    "ថ្ងៃខែឆ្នាំកំណើត", "ទីកន្លែងកំណើត", "អាសយដ្ឋាន",
    "ភេទ", "ថ្នាក់រៀន", "អត្តលេខ", "ភាសាបរទេស"
-   
-   
 ];
 
 let currentStudentId = null;
 let currentStudentName = null;
-let studentNames = []; // Will hold array of student objects: {id, name}
+let studentNames = []; 
 let currentIndex = -1;
 let scores = {};
 const monthSelect = document.getElementById('monthSelect');
@@ -309,7 +302,6 @@ function loadStudents() {
             data.forEach(student => {
                 let div = document.createElement('div');
                 div.className = 'student-item';
-                // Only showing the student's name here as requested
                 div.innerHTML = `
                     <span style="flex:1;">${student.name}</span>
                     <button class="btn-gray">ជ្រើសរើស</button>
@@ -383,13 +375,43 @@ function selectStudent(id, name) {
         .then(res => res.json())
         .then(data => {
             scores = data.scores || {};
+            // បើទិន្នន័យពីសន្លឹកកិច្ចការទទេ កំណត់លក្ខខណ្ឌដើម
+            if(!scores["ឈ្មោះសាលា"]) scores["ឈ្មោះសាលា"] = "";
+            applySchoolLogic();
             renderScores();
         });
+}
+
+// មុខងារសម្រាប់គ្រប់គ្រងលក្ខខណ្ឌស្វ័យប្រវត្តិតាមជម្រើសឈ្មោះសាលា
+function applySchoolLogic() {
+    let school = scores["ឈ្មោះសាលា"] || "";
+    
+    // បើសិនជាជ្រើសរើសយកឈ្មោះសាលាផ្សេងៗ (ក្រៅពី a, b, c) ហើយមិនមែនជាទទេ នោះចាត់ទុកជា 'other'
+    let isOther = school !== "" && school !== "a" && school !== "b" && school !== "c";
+    
+    if (school === "a" || school === "b") {
+        scores["ចំណុះឬក្រៅ"] = "A";
+        scores["មកពីសាលា"] = "A";
+    } else if (school === "c") {
+        scores["ចំណុះឬក្រៅ"] = "C";
+        scores["មកពីសាលា"] = "A";
+    } else if (isOther) {
+        // ប្រសិនបើធ្លាប់ជ្រើសរើសយក D ឬ E រួចហើយ មិនបាច់ដូរទេ បើមិនទាន់មានឲ្យយក D
+        if (scores["ចំណុះឬក្រៅ"] !== "D" && scores["ចំណុះឬក្រៅ"] !== "E") {
+            scores["ចំណុះឬក្រៅ"] = "D"; 
+        }
+        scores["មកពីសាលា"] = "C";
+    }
 }
 
 function renderScores() {
     let grid = document.getElementById('scoresGrid');
     grid.innerHTML = '';
+
+    // ពិនិត្យមើលថាតើឈ្មោះសាលាបច្ចុប្បន្នជាប្រភេទ 'other' ឬអត់
+    let currentSchool = scores["ឈ្មោះសាលា"] || "";
+    // បើឈ្មោះសាលាមិនមែនទទេ ហើយមិនមែនជា a, b, c ឬជម្រើសបណ្តោះអាសន្ន គឺវាជាប្រភេទវាយអក្សរ (Other)
+    let isOtherSchool = (currentSchool !== "" && currentSchool !== "a" && currentSchool !== "b" && currentSchool !== "c") || (scores["_isOtherMode"] === true);
 
     SUBJECTS.forEach(sub => {
         let div = document.createElement('div');
@@ -400,9 +422,73 @@ function renderScores() {
             fieldHTML = `
                 <label>${sub}</label>
                 <select>
-                    <option value="">ជ្រើសរើស</option>
                     <option value="ប្រុស" ${scores[sub]=="ប្រុស" ? "selected" : ""}>ប្រុស</option>
                     <option value="ស្រី" ${scores[sub]=="ស្រី" ? "selected" : ""}>ស្រី</option>
+                </select>
+            `;
+        }
+        else if(sub === "PISA"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="">ជ្រើសរើស</option>
+                    <option value="X" ${scores[sub]=="X" ? "selected" : ""}>X</option>
+                    <option value="✓" ${scores[sub]=="✓" ? "selected" : ""}>✓</option>
+                </select>
+            `;
+        }
+        else if(sub === "ឈ្មោះសាលា"){
+            if (isOtherSchool) {
+                fieldHTML = `
+                    <label>${sub} <span style="color: red;"></span></label>
+                    <div style="display:flex; gap:2px;">
+                        <input type="text" value="${scores[sub] || ''}" placeholder="ឈ្មោះសាលា..." data-required="true" required>
+                        <button type="button" id="btnResetSchool" class="btn-gray" style="padding:2px 5px; font-size:0.8rem;">ដូរ</button>
+                    </div>
+                `;
+            } else {
+                fieldHTML = `
+                    <label>${sub}</label>
+                    <select>
+                        <option value="">ជ្រើសរើស</option>
+                        <option value="a" ${scores[sub]=="a" ? "selected" : ""}>a</option>
+                        <option value="b" ${scores[sub]=="b" ? "selected" : ""}>b</option>
+                        <option value="c" ${scores[sub]=="c" ? "selected" : ""}>c</option>
+                        <option value="other">other</option>
+                    </select>
+                `;
+            }
+        }
+        else if(sub === "ចំណុះឬក្រៅ"){
+            if (isOtherSchool) {
+                fieldHTML = `
+                    <label>${sub}</label>
+                    <select>
+                        <option value="">ជ្រើសរើស</option>
+                        <option value="D" ${scores[sub]=="D" ? "selected" : ""}>D</option>
+                        <option value="E" ${scores[sub]=="E" ? "selected" : ""}>E</option>
+                    </select>
+                `;
+            } else {
+                let isDisabled = (currentSchool === "a" || currentSchool === "b" || currentSchool === "c") ? "disabled" : "";
+                fieldHTML = `
+                    <label>${sub}</label>
+                    <select ${isDisabled}>
+                        <option value="">ជ្រើសរើស</option>
+                        <option value="A" ${scores[sub]=="A" ? "selected" : ""}>A</option>
+                        <option value="C" ${scores[sub]=="C" ? "selected" : ""}>C</option>
+                    </select>
+                `;
+            }
+        }
+        else if(sub === "មកពីសាលា"){
+            let isDisabled = (currentSchool === "a" || currentSchool === "b" || currentSchool === "c" || isOtherSchool) ? "disabled" : "";
+            fieldHTML = `
+                <label>${sub}</label>
+                <select ${isDisabled}>
+                    <option value="">ជ្រើសរើស</option>
+                    <option value="A" ${scores[sub]=="A" ? "selected" : ""}>A</option>
+                    <option value="C" ${scores[sub]=="C" ? "selected" : ""}>C</option>
                 </select>
             `;
         }
@@ -433,7 +519,72 @@ function renderScores() {
 
         div.innerHTML = fieldHTML;
         let input = div.querySelector('input, select');
-        input.oninput = e => scores[sub] = e.target.value;
+
+        input.oninput = e => {
+            let value = e.target.value;
+            
+            if (sub === "ឈ្មោះសាលា") {
+                if (value === "other") {
+                    scores[sub] = ""; // កំណត់តម្លៃទៅជាលំហទទេ (Blank) ភ្លាមៗ
+                    scores["_isOtherMode"] = true; // ចំណាំស្ថានភាពថាជា Other Mode
+                    
+                    // កំណត់លក្ខខណ្ឌស្វ័យប្រវត្តិតាម Logic 
+                    scores["ចំណុះឬក្រៅ"] = ""; 
+                    scores["មកពីសាលា"] = "C";   
+                    
+                    renderScores(); 
+                    
+                    setTimeout(() => {
+                        let txtBox = grid.querySelector('input[placeholder="វាយឈ្មោះសាលា..."]');
+                        if (txtBox) txtBox.focus();
+                    }, 50);
+                } else {
+                    scores[sub] = value;
+                    
+                    if (value !== "") {
+                        // ប្រសិនបើអ្នកប្រើប្រាស់ចាប់ផ្តើមវាយអក្សរ លុប flag Mode បណ្តោះអាសន្នចេញ
+                        delete scores["_isOtherMode"];
+                    }
+
+                    // ដំណើរការលក្ខខណ្ឌស្វ័យប្រវត្តិសម្រាប់ការជ្រើសរើស a, b, c
+                    if (value === "a" || value === "b") {
+                        scores["ចំណុះឬក្រៅ"] = "A";
+                        scores["មកពីសាលា"] = "A";
+                    } else if (value === "c") {
+                        scores["ចំណុះឬក្រៅ"] = "C";
+                        scores["មកពីសាលា"] = "A";
+                    }
+                    
+                    // ប្រសិនបើមិនមែននៅក្នុង TextBox mode ទេ ធ្វើការ Render ឡើងវិញដើម្បីឱ្យដំណើរការ control statuses
+                    if (!isOtherSchool) {
+                        renderScores();
+                    }
+                }
+                return; 
+            }
+
+            if (sub === "ថ្ងៃខែឆ្នាំកំណើត" && value) {
+                if (value.includes('T') || value.includes('GMT')) {
+                    scores[sub] = formatDateOnly(value);
+                    e.target.value = scores[sub];
+                } else {
+                    scores[sub] = value;
+                }
+            } else {
+                scores[sub] = value;
+            }
+        };
+
+        if(sub === "ឈ្មោះសាលា" && isOtherSchool) {
+            div.querySelector('#btnResetSchool').onclick = () => {
+                delete scores["_isOtherMode"];
+                scores["ឈ្មោះសាលា"] = "";
+                scores["ចំណុះឬក្រៅ"] = "";
+                scores["មកពីសាលា"] = "";
+                renderScores();
+            };
+        }
+
         grid.appendChild(div);
     });
 }
@@ -472,13 +623,21 @@ function saveToSheet() {
 
     document.getElementById('quickScore').value = '';
     btn.textContent = 'រក្សាទុក';
+    
+    let sanitizedScores = { ...scores };
+    
+    SUBJECTS.forEach(sub => {
+        if (sub === "ថ្ងៃខែឆ្នាំកំណើត" && sanitizedScores[sub]) {
+            sanitizedScores[sub] = formatDateOnly(sanitizedScores[sub]);
+        }
+    });
 
     fetch(`${SHEET_API_BASE}?action=saveScores&month=${monthSelect.value}`, {
         method: 'POST',
         body: JSON.stringify({ 
             studentId: currentStudentId, 
             studentName: currentStudentName, 
-            scores: scores 
+            scores: sanitizedScores 
         })
     }).catch(() => {
         console.error('Save failed');
@@ -489,7 +648,6 @@ function saveToSheet() {
     }, 500);
 }
 
-// Search function filtering item text content (matches names cleanly)
 document.getElementById('searchName').oninput = e => {
     let term = e.target.value.toLowerCase();
     [...document.getElementById('studentList').children].forEach(div => {
@@ -510,7 +668,6 @@ document.getElementById('backToList').onclick = () => {
     document.getElementById('backToList').style.display = 'none';
 };
 
-// Initial Setup execution
 const subjectQuickSelect = document.getElementById('subjectQuick');
 subjectQuickSelect.innerHTML = SUBJECTS.map(s => `<option>${s}</option>`).join("");
 monthSelect.value = '7A';
