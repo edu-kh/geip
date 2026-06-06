@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Moul&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Battambang&family=Moul&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<title>Geip</title>
+<title>Geip 7-9</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -179,7 +179,7 @@
 
 <header>
     <label style="width:100%; color: #8efdf0;"><span>វិ. ហស​ មិត្តភាព (Geip) <a href="index.html" style="color: aliceblue; list-style-type: none;" >🏡ទំព័រដើម</a></span>
-         <input type="hidden" id="monthSelect" value="7A">
+         <input type="hidden" id="monthSelect" value="7-9">
          <button class="btn-gray" id="backToList" style="display:none;">← Back</button>
     <span id="saveStatush" style="margin-left:10px;color:green;font-weight:bold;"></span>
     </label>
@@ -256,13 +256,13 @@ const SHEET_API_BASE = 'https://script.google.com/macros/s/AKfycbykocE9owoUFQRTE
 
 const SUBJECTS = [
    "ភេទ", "ថ្ងៃខែឆ្នាំកំណើត", "ថ្នាក់រៀនទី",
-   "PISA", "ឈ្មោះសាលា", "ចំណុះឬក្រៅ",
+   "PISA", "ឈ្មោះសាលារៀនឆ្នាំមុន", "ចំណុះឬក្រៅ",
    "មកពីសាលា", "ប្រភេទសិស្ស", "លក្ខខណ្ឌ",
    "ប្រភេទពិការភាព", "ឧបករណ៍ជំនួយ", "បណ្ណក្រីក្រ", "អាហារូបករណ៍", "កំព្រា",
    "លេខសំបុត្រកំណើត", "ចំណាកស្រុក(ឪពុកម្តាយ)", "ហឹង្សាក្នុងគ្រួសារ", "ផ្ទះសំបែង(ជម្រក)", 
-   "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)", "ឈ្មោះជំងឺ(បើមាន)", "មធ្យោបាយព្យាបាល",
+    "ឈ្មោះជំងឺ(បើមាន)", "មធ្យោបាយព្យាបាល",
    "បញ្ហាសុខភាពសិស្ស", "អ្នកផ្ដល់ការព្យាបាល", "ការចូលរួមអាណាព្យាបាល", "ស្ថានភាពរស់នៅ",
-   "សំណូមពរអាណាព្យាបាល", "ក្រុមប្រឹក្សាយុវជន-កុមារ", "ទម្ងន់(គីឡូក្រាម)", "កម្ពស់(ម៉ែត្រ)" ,"បងប្អូនបង្កើត(ឈ្មោះ-ភេទ-ឆ្នាំកំណើត)",
+   "សំណូមពរអាណាព្យាបាល", "ក្រុមប្រឹក្សាយុវជន-កុមារ", "ទម្ងន់(គីឡូក្រាម)", "កម្ពស់(ម៉ែត្រ)" ,"បងប្អូនបង្កើត(ឈ្មោះ-ភេទ-ឆ្នាំកំណើត)",  "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)"
 ];
 
 let currentStudentId = null;
@@ -376,7 +376,7 @@ function selectStudent(id, name) {
         .then(data => {
             scores = data.scores || {};
             // បើទិន្នន័យពីសន្លឹកកិច្ចការទទេ កំណត់លក្ខខណ្ឌដើម
-            if(!scores["ឈ្មោះសាលា"]) scores["ឈ្មោះសាលា"] = "";
+            if(!scores["ឈ្មោះសាលារៀនឆ្នាំមុន"]) scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] = "";
             applySchoolLogic();
             renderScores();
         });
@@ -384,7 +384,7 @@ function selectStudent(id, name) {
 
 // មុខងារសម្រាប់គ្រប់គ្រងលក្ខខណ្ឌស្វ័យប្រវត្តិតាមជម្រើសឈ្មោះសាលា
 function applySchoolLogic() {
-    let school = scores["ឈ្មោះសាលា"] || "";
+    let school = scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] || "";
     
     // បើសិនជាជ្រើសរើសយកឈ្មោះសាលាផ្សេងៗ (ក្រៅពី a, b, c) ហើយមិនមែនជាទទេ នោះចាត់ទុកជា 'other'
     let isOther = school !== "" && school !== "បឋមផ្សារលើ" && school !== "បឋមមិត្តភាព" && school !== "វិ.ហសមិត្តភាព";
@@ -409,7 +409,7 @@ function renderScores() {
     grid.innerHTML = '';
 
     // ពិនិត្យមើលថាតើឈ្មោះសាលាបច្ចុប្បន្នជាប្រភេទ 'other' ឬអត់
-    let currentSchool = scores["ឈ្មោះសាលា"] || "";
+    let currentSchool = scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] || "";
     // បើឈ្មោះសាលាមិនមែនទទេ ហើយមិនមែនជា a, b, c ឬជម្រើសបណ្តោះអាសន្ន គឺវាជាប្រភេទវាយអក្សរ (Other)
     let isOtherSchool = (currentSchool !== "" && currentSchool !== "បឋមផ្សារលើ" && currentSchool !== "បឋមមិត្តភាព" && currentSchool !== "បឋមអូរត្រេះ" && currentSchool !== "វិ.ហសមិត្តភាព") || (scores["_isOtherMode"] === true);
 
@@ -449,7 +449,7 @@ function renderScores() {
             `;
         }
 
-        else if(sub === "ឈ្មោះសាលា"){
+        else if(sub === "ឈ្មោះសាលារៀនឆ្នាំមុន"){
             if (isOtherSchool) {
                 fieldHTML = `
                     <label>${sub} <span style="color: red;"></span></label>
@@ -738,7 +738,7 @@ function renderScores() {
         input.oninput = e => {
             let value = e.target.value;
             
-            if (sub === "ឈ្មោះសាលា") {
+            if (sub === "ឈ្មោះសាលារៀនឆ្នាំមុន") {
                 if (value === "other") {
                     scores[sub] = ""; // កំណត់តម្លៃទៅជាលំហទទេ (Blank) ភ្លាមៗ
                     scores["_isOtherMode"] = true; // ចំណាំស្ថានភាពថាជា Other Mode
@@ -790,10 +790,10 @@ function renderScores() {
             }
         };
 
-        if(sub === "ឈ្មោះសាលា" && isOtherSchool) {
+        if(sub === "ឈ្មោះសាលារៀនឆ្នាំមុន" && isOtherSchool) {
             div.querySelector('#btnResetSchool').onclick = () => {
                 delete scores["_isOtherMode"];
-                scores["ឈ្មោះសាលា"] = "";
+                scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] = "";
                 scores["ចំណុះឬក្រៅ"] = "";
                 scores["មកពីសាលា"] = "";
                 renderScores();
@@ -885,7 +885,7 @@ document.getElementById('backToList').onclick = () => {
 
 const subjectQuickSelect = document.getElementById('subjectQuick');
 subjectQuickSelect.innerHTML = SUBJECTS.map(s => `<option>${s}</option>`).join("");
-monthSelect.value = '7A';
+monthSelect.value = '7-9';
 
 loadStudents();
 renderScores();
