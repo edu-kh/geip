@@ -257,12 +257,12 @@ const SHEET_API_BASE = 'https://script.google.com/macros/s/AKfycbykocE9owoUFQRTE
 const SUBJECTS = [
    "ភេទ", "ថ្ងៃខែឆ្នាំកំណើត", "ថ្នាក់រៀនទី",
    "PISA", "ឈ្មោះសាលា", "ចំណុះឬក្រៅ",
-   "មកពីសាលា", "ទីកន្លែងកំណើត", "អាសយដ្ឋាន",
-   "ភេទ", "ថ្នាក់រៀន", "អត្តលេខ", "ភាសាបរទេស",
-   "ភេទ", "ថ្ងៃខែឆ្នាំកំណើត", "ថ្នាក់រៀនទី",
-   "ឈ្មោះម្តាយ", "មុខរបរម្តាយ", "លេខទូរស័ព្ទម្តាយ",
-   "ថ្ងៃខែឆ្នាំកំណើត", "ទីកន្លែងកំណើត", "អាសយដ្ឋាន",
-   "ភេទ", "ថ្នាក់រៀន", "អត្តលេខ", "ភាសាបរទេស"
+   "មកពីសាលា", "ប្រភេទសិស្ស", "លក្ខខណ្ឌ",
+   "ប្រភេទពិការភាព", "ឧបករណ៍ជំនួយ", "បណ្ណក្រីក្រ", "អាហារូបករណ៍", "កំព្រា",
+   "លេខសំបុត្រកំណើត", "ចំណាកស្រុក(ឪពុកម្តាយ)", "ហឹង្សាក្នុងគ្រួសារ", "ផ្ទះសំបែង(ជម្រក)", 
+   "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)", "ឈ្មោះជំងឺ(បើមាន)", "មធ្យោបាយព្យាបាល",
+   "បញ្ហាសុខភាពសិស្ស", "អ្នកផ្ដល់ការព្យាបាល", "ការចូលរួមអាណាព្យាបាល", "ស្ថានភាពរស់នៅ",
+   "សំណូមពរអាណាព្យាបាល", "ក្រុមប្រឹក្សាយុវជន-កុមារ", "ទម្ងន់(គីឡូក្រាម)", "កម្ពស់(ម៉ែត្រ)" ,"បងប្អូនបង្កើត(ឈ្មោះ-ភេទ-ឆ្នាំកំណើត)",
 ];
 
 let currentStudentId = null;
@@ -422,6 +422,7 @@ function renderScores() {
             fieldHTML = `
                 <label>${sub}</label>
                 <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
                     <option value="ប្រុស" ${scores[sub]=="ប្រុស" ? "selected" : ""}>ប្រុស</option>
                     <option value="ស្រី" ${scores[sub]=="ស្រី" ? "selected" : ""}>ស្រី</option>
                 </select>
@@ -431,12 +432,23 @@ function renderScores() {
             fieldHTML = `
                 <label>${sub}</label>
                 <select>
-                    <option value="" >ជ្រើសរើស</option>
-                    <option value="X" ${scores[sub]=="X" ? "selected" : ""}>X</option>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="✖️" ${scores[sub]=="✖️" ? "selected" : ""}>✖️</option>
                     <option value="✓" ${scores[sub]=="✓" ? "selected" : ""}>✓</option>
                 </select>
             `;
         }
+        else if(sub === "លក្ខខណ្ឌ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="សិស្សដើមឆ្នាំ" ${scores[sub]=="សិស្សដើមឆ្នាំ" ? "selected" : ""}>សិស្សដើមឆ្នាំ</option>
+                    <option value="សិស្សចូលបន្ថែម" ${scores[sub]=="សិស្សចូលបន្ថែម" ? "selected" : ""}>សិស្សចូលបន្ថែម</option>
+                </select>
+            `;
+        }
+
         else if(sub === "ឈ្មោះសាលា"){
             if (isOtherSchool) {
                 fieldHTML = `
@@ -450,7 +462,7 @@ function renderScores() {
                 fieldHTML = `
                     <label>${sub}</label>
                     <select>
-                        <option value="">ជ្រើសរើស</option>
+                        <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
                         <option value="បឋមផ្សារលើ" ${scores[sub]=="បឋមផ្សារលើ" ? "selected" : ""}>បឋមផ្សារលើ</option>
                         <option value="បឋមមិត្តភាព" ${scores[sub]=="បឋមមិត្តភាព" ? "selected" : ""}>បឋមមិត្តភាព</option>
                         <option value="បឋមអូរត្រេះ" ${scores[sub]=="បឋមអូរត្រេះ" ? "selected" : ""}>បឋមអូរត្រេះ</option>
@@ -465,7 +477,7 @@ function renderScores() {
                 fieldHTML = `
                     <label>${sub}</label>
                     <select>
-                        <option value="">ជ្រើសរើស</option>
+                        <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
                         <option value="បឋមក្រៅចំណុះ" ${scores[sub]=="បឋមក្រៅចំណុះ" ? "selected" : ""}>បឋមក្រៅចំណុះ</option>
                         <option value="អនុវិ.ក្រៅចំណុះ" ${scores[sub]=="អនុវិ.ក្រៅចំណុះ" ? "selected" : ""}>អនុវិ.ក្រៅចំណុះ</option>
                     </select>
@@ -475,7 +487,7 @@ function renderScores() {
                 fieldHTML = `
                     <label>${sub}</label>
                     <select ${isDisabled}>
-                        <option value="">ជ្រើសរើស</option>
+                        <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
                         <option value="បឋមចំណុះ" ${scores[sub]=="បឋមចំណុះ" ? "selected" : ""}>បឋមចំណុះ</option>
                         <option value="អនុវិ.ចំណុះ" ${scores[sub]=="អនុវិ.ចំណុះ" ? "selected" : ""}>អនុវិ.ចំណុះ</option>
                     </select>
@@ -487,7 +499,7 @@ function renderScores() {
             fieldHTML = `
                 <label>${sub}</label>
                 <select ${isDisabled}>
-                    <option value="">ជ្រើសរើស</option>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
                     <option value="សាលាគោលដៅ" ${scores[sub]=="សាលាគោលដៅ" ? "selected" : ""}>សាលាគោលដៅ</option>
                     <option value="សាលាក្រៅគោលដៅ" ${scores[sub]=="សាលាក្រៅគោលដៅ" ? "selected" : ""}>សាលាក្រៅគោលដៅ</option>
                 </select>
@@ -499,22 +511,224 @@ function renderScores() {
                 <input type="text" value="${formatDateOnly(scores[sub])}">
             `;
         }
-        else if(sub === "ថ្នាក់រៀន"){
+        else if(sub === "ប្រភេទសិស្ស"){
             fieldHTML = `
                 <label>${sub}</label>
                 <select>
-                    <option value="">ជ្រើសរើសថ្នាក់</option>
-                    <option value="7A" ${scores[sub]=="7A" ? "selected" : ""}>7A</option>
-                    <option value="7B" ${scores[sub]=="7B" ? "selected" : ""}>7B</option>
-                    <option value="8A" ${scores[sub]=="8A" ? "selected" : ""}>8A</option>
-                    <option value="9A" ${scores[sub]=="9A" ? "selected" : ""}>9A</option>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="សិស្សឡើងថ្នាក់" ${scores[sub]=="សិស្សឡើងថ្នាក់" ? "selected" : ""}>សិស្សឡើងថ្នាក់</option>
+                    <option value="សិស្សចូលថ្មី" ${scores[sub]=="សិស្សចូលថ្មី" ? "selected" : ""}>សិស្សចូលថ្មី</option>
+                    <option value="ផ្ទេរចូល" ${scores[sub]=="ផ្ទេរចូល" ? "selected" : ""}>ផ្ទេរចូល</option>
+                    <option value="ត្រួត" ${scores[sub]=="ត្រួត" ? "selected" : ""}>ត្រួត</option>
+                    <option value="ចូលរៀនឡើងវិញ" ${scores[sub]=="ចូលរៀនឡើងវិញ" ? "selected" : ""}>ចូលរៀនឡើងវិញ</option>
+                </select>
+            `;
+        }
+        else if(sub === "ប្រភេទពិការភាព"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="ពិបាកក្នុងការមើល" ${scores[sub]=="ពិបាកក្នុងការមើល" ? "selected" : ""}>ពិបាកក្នុងការមើល</option>
+                    <option value="ពិបាកក្នុងការស្ដាប់" ${scores[sub]=="ពិបាកក្នុងការស្ដាប់" ? "selected" : ""}>ពិបាកក្នុងការស្ដាប់</option>
+                    <option value="ពិបាកក្នុងការធ្វើចលនា" ${scores[sub]=="ពិបាកក្នុងការធ្វើចលនា" ? "selected" : ""}>ពិបាកក្នុងការធ្វើចលនា</option>
+                    <option value="ពិបាកក្នុងការនិយាយ" ${scores[sub]=="ពិបាកក្នុងការនិយាយ" ? "selected" : ""}>ពិបាកក្នុងការនិយាយ</option>
+                </select>
+            `;
+        }
+        else if(sub === "ឧបករណ៍ជំនួយ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="មានវ៉ែនតា" ${scores[sub]=="មានវ៉ែនតា" ? "selected" : ""}>មានវ៉ែនតា</option>
+                    <option value="មានឧបករណ៍ស្តាប់" ${scores[sub]=="មានឧបករណ៍ស្តាប់" ? "selected" : ""}>មានឧបករណ៍ស្តាប់</option>
+                    <option value="មានវ៉ែនតា&មានឧបករណ៍ស្តាប់" ${scores[sub]=="មានវ៉ែនតា&មានឧបករណ៍ស្តាប់" ? "selected" : ""}>មានវ៉ែនតា&មានឧបករណ៍ស្តាប់</option>
+                    <option value="មានរទេះជនពិការ" ${scores[sub]=="មានរទេះជនពិការ" ? "selected" : ""}>មានរទេះជនពិការ</option>
+                </select>
+            `;
+        }
+        else if(sub === "បណ្ណក្រីក្រ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="ក្រ ១" ${scores[sub]=="ក្រ ១" ? "selected" : ""}>ក្រ ១</option>
+                    <option value="ក្រ ២" ${scores[sub]=="ក្រ ២" ? "selected" : ""}>ក្រ ២</option>
+                    <option value="បណ្ណហានិភ័យ" ${scores[sub]=="បណ្ណហានិភ័យ" ? "selected" : ""}>បណ្ណហានិភ័យ</option>
+                   
+                </select>
+            `;
+        }
+         else if(sub === "កំព្រា"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="កុមារកំព្រាឪពុក" ${scores[sub]=="កុមារកំព្រាឪពុក" ? "selected" : ""}>កុមារកំព្រាឪពុក</option>
+                    <option value="កុមារកំព្រាម្តាយ" ${scores[sub]=="កុមារកំព្រាម្តាយ" ? "selected" : ""}>កុមារកំព្រាម្តាយ</option>
+                    <option value="កុមារកំព្រាឪពុក&កុមារកំព្រាម្តាយ" ${scores[sub]=="កុមារកំព្រាឪពុក&កុមារកំព្រាម្តាយ" ? "selected" : ""}>កុមារកំព្រាឪពុក&កុមារកំព្រាម្តាយ</option>
+                  
+                   
+                </select>
+            `;
+        }
+        else if(sub === "អាហារូបករណ៍"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="កម្មវិធីអាហារូបករណ៍" ${scores[sub]=="កម្មវិធីអាហារូបករណ៍" ? "selected" : ""}>កម្មវិធីអាហារូបករណ៍</option>
+                    <option value="PB" ${scores[sub]=="PB" ? "selected" : ""}>PB</option>
+                    <option value="Unicef" ${scores[sub]=="Unicef" ? "selected" : ""}>Unicef</option>
+                    <option value="ADB" ${scores[sub]=="ADB" ? "selected" : ""}>ADB</option>
+                    <option value="ផ្តល់ដោយសហគមន៍" ${scores[sub]=="ផ្តល់ដោយសហគមន៍" ? "selected" : ""}>ផ្តល់ដោយសហគមន៍</option>
+                    <option value="អង្គការផ្សេងៗ" ${scores[sub]=="អង្គការផ្សេងៗ" ? "selected" : ""}>អង្គការផ្សេងៗ</option>
+                </select>
+            `;
+        }
+        else if(sub === "ចំណាកស្រុក(ឪពុកម្តាយ)"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="ធ្វើការក្រៅប្រទេស" ${scores[sub]=="ធ្វើការក្រៅប្រទេស" ? "selected" : ""}>ធ្វើការក្រៅប្រទេស</option>
+                    <option value="ធ្វើការក្នុងប្រទេស" ${scores[sub]=="ធ្វើការក្នុងប្រទេស" ? "selected" : ""}>ធ្វើការក្នុងប្រទេស</option>
+                    <option value="ធ្វើការនៅក្នុងខេត្ត" ${scores[sub]=="ធ្វើការនៅក្នុងខេត្ត" ? "selected" : ""}>ធ្វើការនៅក្នុងខេត្ត</option>
+                   
+                </select>
+            `;
+        }
+        else if(sub === "ហឹង្សាក្នុងគ្រួសារ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled  ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                      <option value="មានម្តងម្កាល" ${scores[sub]=="មានម្តងម្កាល" ? "selected" : ""}>មានម្តងម្កាល</option>
+                    <option value="មានញឹកញាប់" ${scores[sub]=="មានញឹកញាប់" ? "selected" : ""}>មានញឹកញាប់</option>
+                </select>
+            `;
+        }
+        else if(sub === "មធ្យោបាយព្យាបាល"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="ចំណាយដោយបន្ទុកគ្រួសារ" ${scores[sub]=="ចំណាយដោយបន្ទុកគ្រួសារ" ? "selected" : ""}>ចំណាយដោយបន្ទុកគ្រួសារ</option>
+                    <option value="ចំណាយគាំទ្រពីប្រភពផ្សេង" ${scores[sub]=="ចំណាយគាំទ្រពីប្រភពផ្សេង" ? "selected" : ""}>ចំណាយគាំទ្រពីប្រភពផ្សេង</option>
+                   
+                </select>
+            `;
+        }
+        else if(sub === "ផ្ទះសំបែង(ជម្រក)"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="ផ្ទះជួល" ${scores[sub]=="ផ្ទះជួល" ? "selected" : ""}>ផ្ទះជួល</option>
+                    <option value="ស្នាក់នៅជាមួយញាតិមិត្ត" ${scores[sub]=="ស្នាក់នៅជាមួយញាតិមិត្ត" ? "selected" : ""}>ស្នាក់នៅជាមួយញាតិមិត្ត</option>
+                    <option value="មិនពិតប្រាកដ" ${scores[sub]=="មិនពិតប្រាកដ" ? "selected" : ""}>មិនពិតប្រាកដ</option>
+                    <option value="ផ្ទះឈើប្រកស្លឹក" ${scores[sub]=="ផ្ទះឈើប្រកស្លឹក" ? "selected" : ""}>ផ្ទះឈើប្រកស្លឹក</option>
+                    <option value="ផ្ទះឈើប្រកក្បឿង" ${scores[sub]=="ផ្ទះឈើប្រកក្បឿង" ? "selected" : ""}>ផ្ទះឈើប្រកក្បឿង</option>
+                    <option value="ផ្ទះឈើប្រកសំង្កសី" ${scores[sub]=="ផ្ទះឈើប្រកសំង្កសី" ? "selected" : ""}>ផ្ទះឈើប្រកសំង្កសី</option>
+                    <option value="ផ្ទះថ្ម" ${scores[sub]=="ផ្ទះថ្ម" ? "selected" : ""}>ផ្ទះថ្ម</option>
+                   
+                </select>
+            `;
+        }
+          else if(sub === "បញ្ហាសុខភាពសិស្ស"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="សុខភាពល្អ" ${scores[sub]=="សុខភាពល្អ" ? "selected" : ""}>សុខភាពល្អ</option>
+                    <option value="ឈឺម្តងម្កាល" ${scores[sub]=="ឈឺម្តងម្កាល" ? "selected" : ""}>ឈឺម្តងម្កាល</option>
+                    <option value="មានជំងឺប្រចាំកាយ" ${scores[sub]=="មានជំងឺប្រចាំកាយ" ? "selected" : ""}>មានជំងឺប្រចាំកាយ</option>
+                   
+                </select>
+            `;
+        }
+          else if(sub === "អ្នកផ្ដល់ការព្យាបាល"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="គ្រួសារសាច់ញាតិរ" ${scores[sub]=="គ្រួសារសាច់ញាតិ" ? "selected" : ""}>គ្រួសារសាច់ញាតិ</option>
+                    <option value="សហគមន៍" ${scores[sub]=="សហគមន៍" ? "selected" : ""}>សហគមន៍</option>
+                    <option value="អង្គការ" ${scores[sub]=="អង្គការ" ? "selected" : ""}>អង្គការ</option>
+                    <option value="កម្មវិធីរដ្ឋាភិបាល" ${scores[sub]=="កម្មវិធីរដ្ឋាភិបាល" ? "selected" : ""}>កម្មវិធីរដ្ឋាភិបាល</option>
+                   
+                </select>
+            `;
+        }
+         else if(sub === "ស្ថានភាពរស់នៅ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="ជាមួយឪពុក&ជាមួយម្តាយ" ${scores[sub]=="ជាមួយឪពុក&ជាមួយម្តាយ" ? "selected" : ""}>ជាមួយឪពុក&ជាមួយម្តាយ</option>
+                    <option value="ជាមួយឪពុក" ${scores[sub]=="ជាមួយឪពុក" ? "selected" : ""}>ជាមួយឪពុក</option>
+                    <option value="ជាមួយម្ដាយ" ${scores[sub]=="ជាមួយម្ដាយ" ? "selected" : ""}>ជាមួយម្ដាយ</option>
+                    <option value="ជាមួយអ្នកអាណាព្យាបាល" ${scores[sub]=="ជាមួយអ្នកអាណាព្យាបាល" ? "selected" : ""}>ជាមួយអ្នកអាណាព្យាបាល</option>
+                    <option value="ជាមួយសាច់ញាតិ ${scores[sub]=="ជាមួយសាច់ញាតិ" ? "selected" : ""}>ជាមួយសាច់ញាតិ</option>
+                   
+                </select>
+            `;
+        }
+          else if(sub === "ការចូលរួមអាណាព្យាបាល"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="1-ចូលរួមប្រជុំប្រចាំខែ" ${scores[sub]=="1-ចូលរួមប្រជុំប្រចាំខែ" ? "selected" : ""}>1-ចូលរួមប្រជុំប្រចាំខែ</option>
+                    <option value="2-ចូលរួមជួយកូន" ${scores[sub]=="2-ចូលរួមជួយកូន" ? "selected" : ""}>2-ចូលរួមជួយកូន</option>
+                    <option value="3-ចូលរួមជួយគ្រូ" ${scores[sub]=="3-ចូលរួមជួយគ្រូ" ? "selected" : ""}>3-ចូលរួមជួយគ្រូ</option>
+                    <option value="4-ចូលរួមកែលម្អថ្នាក់រៀន" ${scores[sub]=="4-ចូលរួមកែលម្អថ្នាក់រៀន" ? "selected" : ""}>4-ចូលរួមកែលម្អថ្នាក់រៀន</option>
+                   <option value="5-ផ្សេងៗ" ${scores[sub]=="5-ផ្សេងៗ" ? "selected" : ""}>5-ផ្សេងៗ</option>
+                </select>
+            `;
+        }
+          else if(sub === "សំណូមពរអាណាព្យាបាល"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="ជួយណែនាំសិស្សបន្ថែម" ${scores[sub]=="ជួយណែនាំសិស្សបន្ថែម" ? "selected" : ""}>ជួយណែនាំសិស្សបន្ថែម</option>
+                    <option value="ពង្រឹងការប្រឡង" ${scores[sub]=="ពង្រឹងការប្រឡង" ? "selected" : ""}>ពង្រឹងការប្រឡង</option>
+                    <option value="ពង្រឹងវិន័យ" ${scores[sub]=="ពង្រឹងវិន័យ" ? "selected" : ""}>ពង្រឹងវិន័យ</option>
+                    <option value="តាមដាននិងយកចិត្តទុកដាក់សិស្ស" ${scores[sub]=="តាមដាននិងយកចិត្តទុកដាក់សិស្ស" ? "selected" : ""}>តាមដាននិងយកចិត្តទុកដាក់សិស្ស</option>
+                   
+                   
+                </select>
+            `;
+        }
+          else if(sub === "ក្រុមប្រឹក្សាយុវជន-កុមារ"){
+            fieldHTML = `
+                <label>${sub}</label>
+                <select>
+                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
+                    <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
+                    <option value="ប្រធាន" ${scores[sub]=="ប្រធាន" ? "selected" : ""}>ប្រធាន</option>
+                    <option value="អនុប្រធាន" ${scores[sub]=="អនុប្រធាន" ? "selected" : ""}>អនុប្រធាន</option>
+                     <option value="សមាជិក" ${scores[sub]=="សមាជិក" ? "selected" : ""}>សមាជិក</option>
+                   
                 </select>
             `;
         }
         else {
             fieldHTML = `
                 <label>${sub}</label>
-                <input type="text" value="${scores[sub] || ''}">
+                <input type="text"  value="${scores[sub] || ''}">
             `;
         }
 
