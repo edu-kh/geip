@@ -304,7 +304,7 @@ function loadStudents() {
                 div.className = 'student-item';
                 div.innerHTML = `
                     <span style="flex:1;">${student.name}</span>
-                    <button class="btn-gray">ជ្រើសរើស</button>
+                     <button class="btn-gray">🖊️បំពេញ/កែប្រែ</button>
                 `;
 
                 div.querySelector('button').onclick = () => {
@@ -357,6 +357,7 @@ document.getElementById('monthSelect').addEventListener('input', () => {
 });
 
 function selectStudent(id, name) {
+    // 1. Hide the list and show the information panel
     document.querySelector('.panel-list').style.display = 'none';
     document.getElementById('studentInfoPanel').style.display = 'flex';
     document.getElementById('backToList').style.display = 'inline-block';
@@ -369,17 +370,35 @@ function selectStudent(id, name) {
     scores = {};
    
     document.getElementById('quickScore').value = '';
-    renderScores();
     
-    fetch(`${SHEET_API_BASE}?action=getScores&month=${monthSelect.value}&studentId=${encodeURIComponent(id)}`)
-        .then(res => res.json())
-        .then(data => {
-            scores = data.scores || {};
-            // បើទិន្នន័យពីសន្លឹកកិច្ចការទទេ កំណត់លក្ខខណ្ឌដើម
-            if(!scores["ឈ្មោះសាលារៀនឆ្នាំមុន"]) scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] = "";
-            applySchoolLogic();
-            renderScores();
-        });
+    // 2. Clear the form and show a temporary 3-second reload/loading message
+    let grid = document.getElementById('scoresGrid');
+    grid.innerHTML = '<div id="formLoadingMsg" style="padding:20px; color:#8efdf0; font-size: 1.2rem; text-align:center;"><i class="fa fa-spinner fa-spin"></i> កំពុងទាញយកទិន្នន័យសូមរង់ចាំ ៣វិនាទី</div>';
+    
+    // Hide action buttons while loading
+    document.getElementById('saveBtn').style.display = 'none';
+    document.getElementById('resetBtn').style.display = 'none';
+    
+    // 3. Fetch data and enforce a strict 3-second delay minimum
+    Promise.all([
+        fetch(`${SHEET_API_BASE}?action=getScores&month=${monthSelect.value}&studentId=${encodeURIComponent(id)}`).then(res => res.json()),
+        new Promise(resolve => setTimeout(resolve, 3000)) // Enforces the 3 second delay
+    ])
+    .then(([data]) => {
+        // 4. Data is fetched and 3 seconds have passed -> Render the form
+        scores = data.scores || {};
+        if(!scores["ឈ្មោះសាលារៀនឆ្នាំមុន"]) scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] = "";
+        applySchoolLogic();
+        
+        // Restore action buttons and render data
+        document.getElementById('saveBtn').style.display = 'inline-block';
+        document.getElementById('resetBtn').style.display = 'inline-block';
+        renderScores();
+    })
+    .catch(err => {
+        console.error(err);
+        grid.innerHTML = '<div style="padding:20px; color:red; text-align:center;">ការទាញទិន្នន័យបរាជ័យ! សូមព្យាយាមម្តងទៀត។</div>';
+    });
 }
 
 // មុខងារសម្រាប់គ្រប់គ្រងលក្ខខណ្ឌស្វ័យប្រវត្តិតាមជម្រើសឈ្មោះសាលា
@@ -509,6 +528,12 @@ function renderScores() {
             fieldHTML = `
                 <label>${sub}</label>
                 <input type="text" value="${formatDateOnly(scores[sub])}">
+            `;
+        }
+        else if(sub === "លេខសំបុត្រកំណើត" || sub === "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)" || sub === "ទម្ងន់(គីឡូក្រាម)" || sub === "កម្ពស់(ម៉ែត្រ)" ){
+            fieldHTML = `
+                <label>${sub}</label>
+                <input type="number" value="${scores[sub]}">
             `;
         }
         else if(sub === "ប្រភេទសិស្ស"){
