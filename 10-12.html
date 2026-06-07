@@ -272,6 +272,7 @@ let currentIndex = -1;
 let scores = {};
 const monthSelect = document.getElementById('monthSelect');
 
+// Helper 1: For text fields displaying DD-MM-YYYY
 function formatDateOnly(dateValue){
     if(!dateValue) return '';
     const d = new Date(dateValue);
@@ -280,6 +281,24 @@ function formatDateOnly(dateValue){
     const month = String(d.getMonth()+1).padStart(2,'0');
     const year = d.getFullYear();
     return `${day}-${month}-${year}`;
+}
+
+// Helper 2: MANDATORY for <input type="date"> fields (Strictly YYYY-MM-DD)
+function formatToIsoDate(dateValue) {
+    if (!dateValue) return '';
+    
+    // If it's already in DD-MM-YYYY format, rearrange it to YYYY-MM-DD
+    if (typeof dateValue === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(dateValue)) {
+        const parts = dateValue.split('-');
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    
+    const d = new Date(dateValue);
+    if (isNaN(d)) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 function loadStudents() {
@@ -375,18 +394,14 @@ function selectStudent(id, name) {
         .then(res => res.json())
         .then(data => {
             scores = data.scores || {};
-            // បើទិន្នន័យពីសន្លឹកកិច្ចការទទេ កំណត់លក្ខខណ្ឌដើម
             if(!scores["ឈ្មោះសាលារៀនឆ្នាំមុន"]) scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] = "";
             applySchoolLogic();
             renderScores();
         });
 }
 
-// មុខងារសម្រាប់គ្រប់គ្រងលក្ខខណ្ឌស្វ័យប្រវត្តិតាមជម្រើសឈ្មោះសាលា
 function applySchoolLogic() {
     let school = scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] || "";
-    
-    // បើសិនជាជ្រើសរើសយកឈ្មោះសាលាផ្សេងៗ (ក្រៅពី a, b, c) ហើយមិនមែនជាទទេ នោះចាត់ទុកជា 'other'
     let isOther = school !== "" && school !== "បឋមផ្សារលើ" && school !== "បឋមមិត្តភាព" && school !== "វិ.ហសមិត្តភាព";
     
     if (school === "បឋមផ្សារលើ" || school === "បឋមមិត្តភាព") {
@@ -396,7 +411,6 @@ function applySchoolLogic() {
         scores["ចំណុះឬក្រៅ"] = "អនុវិ.ចំណុះ";
         scores["មកពីសាលា"] = "សាលាគោលដៅ";
     } else if (isOther) {
-        // ប្រសិនបើធ្លាប់ជ្រើសរើសយក D ឬ E រួចហើយ មិនបាច់ដូរទេ បើមិនទាន់មានឲ្យយក D
         if (scores["ចំណុះឬក្រៅ"] !== "បឋមក្រៅចំណុះ" && scores["ចំណុះឬក្រៅ"] !== "អនុវិ.ក្រៅចំណុះ") {
             scores["ចំណុះឬក្រៅ"] = "បឋមក្រៅចំណុះ"; 
         }
@@ -408,9 +422,7 @@ function renderScores() {
     let grid = document.getElementById('scoresGrid');
     grid.innerHTML = '';
 
-    // ពិនិត្យមើលថាតើឈ្មោះសាលាបច្ចុប្បន្នជាប្រភេទ 'other' ឬអត់
     let currentSchool = scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] || "";
-    // បើឈ្មោះសាលាមិនមែនទទេ ហើយមិនមែនជា a, b, c ឬជម្រើសបណ្តោះអាសន្ន គឺវាជាប្រភេទវាយអក្សរ (Other)
     let isOtherSchool = (currentSchool !== "" && currentSchool !== "បឋមផ្សារលើ" && currentSchool !== "បឋមមិត្តភាព" && currentSchool !== "បឋមអូរត្រេះ" && currentSchool !== "វិ.ហសមិត្តភាព") || (scores["_isOtherMode"] === true);
 
     SUBJECTS.forEach(sub => {
@@ -448,7 +460,6 @@ function renderScores() {
                 </select>
             `;
         }
-
         else if(sub === "ឈ្មោះសាលារៀនឆ្នាំមុន"){
             if (isOtherSchool) {
                 fieldHTML = `
@@ -514,7 +525,7 @@ function renderScores() {
         else if(sub === "សម័យប្រឡងបឋមភូមិ"){
             fieldHTML = `
                 <label>${sub}</label>
-                <input type="date" value="${scores[sub]}">
+                <input type="date" value="${formatToIsoDate(scores[sub])}">
             `;
         }
          else if(sub === "លេខសំបុត្រកំណើត" || sub === "លេខតុ" || sub === "លេខបន្ទប់" || sub === "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)" || sub === "ទម្ងន់(គីឡូក្រាម)" || sub === "កម្ពស់(ម៉ែត្រ)" ){
@@ -571,11 +582,10 @@ function renderScores() {
                     <option value="ក្រ ១" ${scores[sub]=="ក្រ ១" ? "selected" : ""}>ក្រ ១</option>
                     <option value="ក្រ ២" ${scores[sub]=="ក្រ ២" ? "selected" : ""}>ក្រ ២</option>
                     <option value="បណ្ណហានិភ័យ" ${scores[sub]=="បណ្ណហានិភ័យ" ? "selected" : ""}>បណ្ណហានិភ័យ</option>
-                   
                 </select>
             `;
         }
-         else if(sub === "កំព្រា"){
+         else if(sub === "កំព្រa"){
             fieldHTML = `
                 <label>${sub}</label>
                 <select>
@@ -584,8 +594,6 @@ function renderScores() {
                     <option value="កុមារកំព្រាឪពុក" ${scores[sub]=="កុមារកំព្រាឪពុក" ? "selected" : ""}>កុមារកំព្រាឪពុក</option>
                     <option value="កុមារកំព្រាម្តាយ" ${scores[sub]=="កុមារកំព្រាម្តាយ" ? "selected" : ""}>កុមារកំព្រាម្តាយ</option>
                     <option value="កុមារកំព្រាឪពុក&កុមារកំព្រាម្តាយ" ${scores[sub]=="កុមារកំព្រាឪពុក&កុមារកំព្រាម្តាយ" ? "selected" : ""}>កុមារកំព្រាឪពុក&កុមារកំព្រាម្តាយ</option>
-                  
-                   
                 </select>
             `;
         }
@@ -613,7 +621,6 @@ function renderScores() {
                     <option value="ធ្វើការក្រៅប្រទេស" ${scores[sub]=="ធ្វើការក្រៅប្រទេស" ? "selected" : ""}>ធ្វើការក្រៅប្រទេស</option>
                     <option value="ធ្វើការក្នុងប្រទេស" ${scores[sub]=="ធ្វើការក្នុងប្រទេស" ? "selected" : ""}>ធ្វើការក្នុងប្រទេស</option>
                     <option value="ធ្វើការនៅក្នុងខេត្ត" ${scores[sub]=="ធ្វើការនៅក្នុងខេត្ត" ? "selected" : ""}>ធ្វើការនៅក្នុងខេត្ត</option>
-                   
                 </select>
             `;
         }
@@ -623,7 +630,7 @@ function renderScores() {
                 <select>
                     <option value="" disabled  ${!scores[sub] ? "selected" : ""}></option>
                     <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
-                      <option value="មានម្តងម្កាល" ${scores[sub]=="មានម្តងម្កាល" ? "selected" : ""}>មានម្តងម្កាល</option>
+                    <option value="មានម្តងម្កាល" ${scores[sub]=="មានម្តងម្កាល" ? "selected" : ""}>មានម្តងម្កាល</option>
                     <option value="មានញឹកញាប់" ${scores[sub]=="មានញឹកញាប់" ? "selected" : ""}>មានញឹកញាប់</option>
                 </select>
             `;
@@ -636,7 +643,6 @@ function renderScores() {
                     <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
                     <option value="ចំណាយដោយបន្ទុកគ្រួសារ" ${scores[sub]=="ចំណាយដោយបន្ទុកគ្រួសារ" ? "selected" : ""}>ចំណាយដោយបន្ទុកគ្រួសារ</option>
                     <option value="ចំណាយគាំទ្រពីប្រភពផ្សេង" ${scores[sub]=="ចំណាយគាំទ្រពីប្រភពផ្សេង" ? "selected" : ""}>ចំណាយគាំទ្រពីប្រភពផ្សេង</option>
-                   
                 </select>
             `;
         }
@@ -652,7 +658,6 @@ function renderScores() {
                     <option value="ផ្ទះឈើប្រកក្បឿង" ${scores[sub]=="ផ្ទះឈើប្រកក្បឿង" ? "selected" : ""}>ផ្ទះឈើប្រកក្បឿង</option>
                     <option value="ផ្ទះឈើប្រកសំង្កសី" ${scores[sub]=="ផ្ទះឈើប្រកសំង្កសី" ? "selected" : ""}>ផ្ទះឈើប្រកសំង្កសី</option>
                     <option value="ផ្ទះថ្ម" ${scores[sub]=="ផ្ទះថ្ម" ? "selected" : ""}>ផ្ទះថ្ម</option>
-                   
                 </select>
             `;
         }
@@ -664,7 +669,6 @@ function renderScores() {
                     <option value="សុខភាពល្អ" ${scores[sub]=="សុខភាពល្អ" ? "selected" : ""}>សុខភាពល្អ</option>
                     <option value="ឈឺម្តងម្កាល" ${scores[sub]=="ឈឺម្តងម្កាល" ? "selected" : ""}>ឈឺម្តងម្កាល</option>
                     <option value="មានជំងឺប្រចាំកាយ" ${scores[sub]=="មានជំងឺប្រចាំកាយ" ? "selected" : ""}>មានជំងឺប្រចាំកាយ</option>
-                   
                 </select>
             `;
         }
@@ -674,11 +678,10 @@ function renderScores() {
                 <select>
                     <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
                     <option value="មិនមាន" ${scores[sub]=="មិនមាន" ? "selected" : ""}>មិនមាន</option>
-                    <option value="គ្រួសារសាច់ញាតិរ" ${scores[sub]=="គ្រួសារសាច់ញាតិ" ? "selected" : ""}>គ្រួសារសាច់ញាតិ</option>
+                    <option value="គ្រួសារសាច់ញាតិ" ${scores[sub]=="គ្រួសារសាច់ញាតិ" ? "selected" : ""}>គ្រួសារសាច់ញាតិ</option>
                     <option value="សហគមន៍" ${scores[sub]=="សហគមន៍" ? "selected" : ""}>សហគមន៍</option>
                     <option value="អង្គការ" ${scores[sub]=="អង្គការ" ? "selected" : ""}>អង្គការ</option>
                     <option value="កម្មវិធីរដ្ឋាភិបាល" ${scores[sub]=="កម្មវិធីរដ្ឋាភិបាល" ? "selected" : ""}>កម្មវិធីរដ្ឋាភិបាល</option>
-                   
                 </select>
             `;
         }
@@ -691,8 +694,7 @@ function renderScores() {
                     <option value="ជាមួយឪពុក" ${scores[sub]=="ជាមួយឪពុក" ? "selected" : ""}>ជាមួយឪពុក</option>
                     <option value="ជាមួយម្ដាយ" ${scores[sub]=="ជាមួយម្ដាយ" ? "selected" : ""}>ជាមួយម្ដាយ</option>
                     <option value="ជាមួយអ្នកអាណាព្យាបាល" ${scores[sub]=="ជាមួយអ្នកអាណាព្យាបាល" ? "selected" : ""}>ជាមួយអ្នកអាណាព្យាបាល</option>
-                    <option value="ជាមួយសាច់ញាតិ ${scores[sub]=="ជាមួយសាច់ញាតិ" ? "selected" : ""}>ជាមួយសាច់ញាតិ</option>
-                   
+                    <option value="ជាមួយសាច់ញាតិ" ${scores[sub]=="ជាមួយសាច់ញាតិ" ? "selected" : ""}>ជាមួយសាច់ញាតិ</option>
                 </select>
             `;
         }
@@ -719,8 +721,6 @@ function renderScores() {
                     <option value="ពង្រឹងការប្រឡង" ${scores[sub]=="ពង្រឹងការប្រឡង" ? "selected" : ""}>ពង្រឹងការប្រឡង</option>
                     <option value="ពង្រឹងវិន័យ" ${scores[sub]=="ពង្រឹងវិន័យ" ? "selected" : ""}>ពង្រឹងវិន័យ</option>
                     <option value="តាមដាននិងយកចិត្តទុកដាក់សិស្ស" ${scores[sub]=="តាមដាននិងយកចិត្តទុកដាក់សិស្ស" ? "selected" : ""}>តាមដាននិងយកចិត្តទុកដាក់សិស្ស</option>
-                   
-                   
                 </select>
             `;
         }
@@ -733,7 +733,6 @@ function renderScores() {
                     <option value="ប្រធាន" ${scores[sub]=="ប្រធាន" ? "selected" : ""}>ប្រធាន</option>
                     <option value="អនុប្រធាន" ${scores[sub]=="អនុប្រធាន" ? "selected" : ""}>អនុប្រធាន</option>
                      <option value="សមាជិក" ${scores[sub]=="សមាជិក" ? "selected" : ""}>សមាជិក</option>
-                   
                 </select>
             `;
         }
@@ -752,28 +751,20 @@ function renderScores() {
             
             if (sub === "ឈ្មោះសាលារៀនឆ្នាំមុន") {
                 if (value === "other") {
-                    scores[sub] = ""; // កំណត់តម្លៃទៅជាលំហទទេ (Blank) ភ្លាមៗ
-                    scores["_isOtherMode"] = true; // ចំណាំស្ថានភាពថាជា Other Mode
-                    
-                    // កំណត់លក្ខខណ្ឌស្វ័យប្រវត្តិតាម Logic 
+                    scores[sub] = ""; 
+                    scores["_isOtherMode"] = true; 
                     scores["ចំណុះឬក្រៅ"] = ""; 
                     scores["មកពីសាលា"] = "សាលាក្រៅគោលដៅ";   
-                    
                     renderScores(); 
-                    
                     setTimeout(() => {
-                        let txtBox = grid.querySelector('input[placeholder="វាយឈ្មោះសាលា..."]');
+                        let txtBox = grid.querySelector('input[placeholder="ឈ្មោះសាលា..."]');
                         if (txtBox) txtBox.focus();
                     }, 50);
                 } else {
                     scores[sub] = value;
-                    
                     if (value !== "") {
-                        // ប្រសិនបើអ្នកប្រើប្រាស់ចាប់ផ្តើមវាយអក្សរ លុប flag Mode បណ្តោះអាសន្នចេញ
                         delete scores["_isOtherMode"];
                     }
-
-                    // ដំណើរការលក្ខខណ្ឌស្វ័យប្រវត្តិសម្រាប់ការជ្រើសរើស a, b, c
                     if (value === "បឋមផ្សារលើ" || value === "បឋមមិត្តភាព" || value === "បឋមអូរត្រេះ" ) {
                         scores["ចំណុះឬក្រៅ"] = "បឋមចំណុះ";
                         scores["មកពីសាលា"] = "សាលាគោលដៅ";
@@ -781,8 +772,6 @@ function renderScores() {
                         scores["ចំណុះឬក្រៅ"] = "អនុវិ.ចំណុះ";
                         scores["មកពីសាលា"] = "សាលាគោលដៅ";
                     }
-                    
-                    // ប្រសិនបើមិនមែននៅក្នុង TextBox mode ទេ ធ្វើការ Render ឡើងវិញដើម្បីឱ្យដំណើរការ control statuses
                     if (!isOtherSchool) {
                         renderScores();
                     }
@@ -797,6 +786,9 @@ function renderScores() {
                 } else {
                     scores[sub] = value;
                 }
+            } else if (sub === "សម័យប្រឡងបឋមភូមិ") {
+                // If the user picks a date from the date input box, save it in strict YYYY-MM-DD
+                scores[sub] = value; 
             } else {
                 scores[sub] = value;
             }
@@ -856,6 +848,10 @@ function saveToSheet() {
     SUBJECTS.forEach(sub => {
         if (sub === "ថ្ងៃខែឆ្នាំកំណើត" && sanitizedScores[sub]) {
             sanitizedScores[sub] = formatDateOnly(sanitizedScores[sub]);
+        }
+        if (sub === "សម័យប្រឡងបឋមភូមិ" && sanitizedScores[sub]) {
+            // Keep it saved clearly as YYYY-MM-DD format
+            sanitizedScores[sub] = formatToIsoDate(sanitizedScores[sub]);
         }
     });
 
