@@ -40,14 +40,16 @@
         padding: 10px;
         display: flex;
         gap: 10px;
-        align-items: center;
+        justify-content: center; /* Centering horizontally */
+        align-items: center;    /* Centering vertically */
+        text-align: center;     /* Centers text inside the 100% width label */
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         z-index: 10;
         font-family: "Battambang", system-ui;
     }
   
     footer {
-        position: fixed; /* Changed from sticky to fixed */
+        position: fixed; 
         bottom: 0;
         left: 0;
         right: 0;
@@ -55,8 +57,10 @@
         padding: 10px;
         display: flex;
         gap: 10px;
-        align-items: center;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.1); /* Inverted shadow direction for bottom bar */
+        justify-content: center; /* Centering horizontally */
+        align-items: center;    /* Centering vertically */
+        text-align: center;     /* Centers text inside the 100% width label */
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1); 
         z-index: 10;
         font-family: "Battambang", system-ui;
     }
@@ -155,14 +159,16 @@
         text-decoration: none;
         border-bottom: 1px solid white;
         transition: border .3s;
+        
     }
 
     p a:hover {
         border-bottom: 1px solid rgba(0,0,0,0);
     }
     footer a{
+      
       text-decoration: none;
-      color: #4e93e1;
+      color: #4295fa;
     }
 </style>
 </head> 
@@ -180,7 +186,7 @@
 </div>
 
 <footer>
-    <label style="width:100%; color: #8efdf0;"><span>បង្កើតដោលោក ពីន គុយ ©2026-2027 <a href="https://t.me/pinkoy2022"><i class="fab fa-telegram"> </i> Telegram</a></span></label>
+    <label style="width:100%; color: #8efdf0;"><span>បង្កើតដោយលោក ពីន គុយ ©2026 <a href="https://t.me/pinkoy2022"><i class="fab fa-telegram"> </i> Telegram</a></span></label>
 </footer>
 
 </body>
