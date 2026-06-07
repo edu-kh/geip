@@ -514,13 +514,13 @@ function renderScores() {
         else if(sub === "សម័យប្រឡងបឋមភូមិ"){
             fieldHTML = `
                 <label>${sub}</label>
-                <input type="date" value="${!scores[sub]}">
+                <input type="date" value="${scores[sub]}">
             `;
         }
          else if(sub === "លេខសំបុត្រកំណើត" || sub === "លេខតុ" || sub === "លេខបន្ទប់" || sub === "ប្រាក់ចំណូលគ្រួសារ/១ខែ($)" || sub === "ទម្ងន់(គីឡូក្រាម)" || sub === "កម្ពស់(ម៉ែត្រ)" ){
             fieldHTML = `
                 <label>${sub}</label>
-                <input type="number" value="${!scores[sub]}">
+                <input type="number" value="${scores[sub]}">
             `;
         }
         else if(sub === "ប្រភេទសិស្ស"){
