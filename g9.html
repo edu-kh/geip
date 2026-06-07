@@ -26,6 +26,7 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         z-index: 10;
         font-family: "Battambang", system-ui;
+        
     }
     .container {
         display: flex;
@@ -178,9 +179,9 @@
 <body>
 
 <header>
-    <label style="width:100%; color: #8efdf0;"><span>វិ. ហស​ មិត្តភាព (Geip) <a href="index.html" style="color: aliceblue; list-style-type: none;" >🏡ទំព័រដើម</a></span>
+    <label style="width:100%; color: #8efdf0;"><span>វិល័យ ហ៊ុន សែន មិត្តភាព (Geip)   <button class="btn-gray"> <a href="index.html" style="color: green; list-style-type: none;" >🏡ទំព័រដើម</a></button></span>
          <input type="hidden" id="monthSelect" value="7-9">
-         <button class="btn-gray" id="backToList" style="display:none;">← Back</button>
+         <button class="btn-gray" id="backToList" style="display:none;">⬅️ថយក្រោយ</button>
     <span id="saveStatush" style="margin-left:10px;color:green;font-weight:bold;"></span>
     </label>
    
@@ -189,7 +190,7 @@
     <h4 id="selectedStudenth" style="padding: 0px; margin-top: -5px; margin-bottom: -5px; overflow-y: auto; font-size: 0px; border: none;"></h4>
     <span id="saveListScores"> </span>
     <span id="applyQuick"></span>
-    <button class="btn-gray" id="backToList" style="display:none;">← Back</button>
+    <button class="btn-gray" id="backToList" style="display:none;">⬅️ថយក្រោយ</button>
     <span id="saveStatush" style="margin-left:10px;color:green;font-weight:bold;"></span>
 </header>
 
@@ -221,7 +222,6 @@
         </div>
     </div>
 </div>
-
 <div id="successPopup" style="
     display:none;
     position:fixed;
@@ -244,7 +244,7 @@
         box-shadow:0 5px 20px rgba(0,0,0,0.2);
     ">
         <h2 style="color:green;">✅ រក្សាទុកជោគជ័យ</h2>
-        <p>ទិន្នន័យត្រូវបានរក្សាទុកទៅ Google Sheet</p>
+        <p id="successMessage" ></p>
         <button id="closePopupBtn" class="btn-blue" style="margin-top:15px;">
             បិទផ្ទាំង
         </button>
@@ -304,7 +304,7 @@ function loadStudents() {
                 div.className = 'student-item';
                 div.innerHTML = `
                     <span style="flex:1;">${student.name}</span>
-                     <button class="btn-gray">🖊️បំពេញ/កែប្រែ</button>
+                     <button class="btn-gray">🖉បំពេញ/កែប្រែ</button>
                 `;
 
                 div.querySelector('button').onclick = () => {
@@ -852,6 +852,9 @@ function saveToSheet() {
         return;
     }
 
+    // Set the dynamic thank you message here
+   // Wrap the student's name in a red span tag
+    document.getElementById('successMessage').innerHTML = `អគុណប្អូន​ <span style="color: red; font-weight: bold;">${currentStudentName}</span> អ្នកជាសិស្សគំរូ🐧`;
     btn.disabled = true;
     showSuccessPopup();
 
@@ -869,6 +872,9 @@ function saveToSheet() {
     SUBJECTS.forEach(sub => {
         if (sub === "ថ្ងៃខែឆ្នាំកំណើត" && sanitizedScores[sub]) {
             sanitizedScores[sub] = formatDateOnly(sanitizedScores[sub]);
+        }
+        if (sub === "សម័យប្រឡងបឋមភូមិ" && sanitizedScores[sub]) {
+            sanitizedScores[sub] = formatToIsoDate(sanitizedScores[sub]);
         }
     });
 
