@@ -224,6 +224,73 @@
     }
     select::-ms-expand { display: none; }
 
+    /* ---------- Custom dropdown (looks identical on mobile & desktop) ---------- */
+    .custom-select {
+        position: relative;
+        width: 100%;
+    }
+    .cs-trigger {
+        padding: 8px 32px 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: "Battambang", system-ui;
+        font-size: 0.95rem;
+        background: hsla(216, 50%, 97%, 0.95)
+            url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'><path d='M1 1l6 6 6-6' fill='none' stroke='%235b8cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+            no-repeat right 12px center / 12px 8px;
+        color: #1b2433;
+        cursor: pointer;
+        user-select: none;
+        transition: box-shadow .2s var(--ease), border-color .2s var(--ease);
+        min-height: 37px;
+    }
+    .cs-trigger:empty::before {
+        content: "\00a0";
+    }
+    .custom-select.open .cs-trigger,
+    .custom-select:focus-within .cs-trigger {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(91,140,255,0.28);
+    }
+    .custom-select.open .cs-trigger {
+        transform: none;
+    }
+    .cs-options {
+        display: none;
+        position: fixed;
+        max-height: 220px;
+        overflow-y: auto;
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        z-index: 9999;
+        padding: 4px;
+    }
+    .cs-options.cs-open {
+        display: block;
+        animation: fadeSlideUp .15s var(--ease);
+    }
+    .cs-option {
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-family: "Battambang", system-ui;
+        font-size: 0.95rem;
+        color: #1b2433;
+        cursor: pointer;
+    }
+    .cs-option:hover,
+    .cs-option.highlighted {
+        background: rgba(91,140,255,0.14);
+    }
+    .cs-option.selected {
+        background: var(--accent-grad);
+        color: #fff;
+    }
+
     @media(max-width: 768px) {
         .container { flex-direction: column; padding: 12px; }
         header { flex-wrap: wrap; }
@@ -633,9 +700,26 @@ function applySchoolLogic() {
     }
 }
 
+// A body-level container that dropdown option lists get moved into, so they
+// can never be clipped by a scrolling/overflow-hidden ancestor panel.
+let csPortalRoot = document.getElementById('csPortalRoot');
+if (!csPortalRoot) {
+    csPortalRoot = document.createElement('div');
+    csPortalRoot.id = 'csPortalRoot';
+    document.body.appendChild(csPortalRoot);
+}
+
+function closeAllCustomSelects() {
+    document.querySelectorAll('.cs-options.cs-open').forEach(el => el.classList.remove('cs-open'));
+}
+document.addEventListener('click', () => closeAllCustomSelects());
+document.addEventListener('scroll', () => closeAllCustomSelects(), true);
+window.addEventListener('resize', () => closeAllCustomSelects());
+
 function renderScores() {
     let grid = document.getElementById('scoresGrid');
     grid.innerHTML = '';
+    csPortalRoot.innerHTML = ''; // drop any dropdown lists left over from the previous render
 
     let currentSchool = scores["ឈ្មោះសាលារៀនឆ្នាំមុន"] || "";
     let isOtherSchool = (currentSchool !== "" && currentSchool !== "បឋមផ្សារលើ" && currentSchool !== "បឋមមិត្តភាព" && currentSchool !== "បឋមអូរត្រេះ" && currentSchool !== "វិ.ហសមិត្តភាព") || (scores["_isOtherMode"] === true);
@@ -648,11 +732,14 @@ function renderScores() {
         if(sub === "ភេទ"){
             fieldHTML = `
                 <label>${sub}</label>
-                <select>
-                    <option value="" disabled ${!scores[sub] ? "selected" : ""}></option>
-                    <option value="ប្រុស" ${scores[sub]=="ប្រុស" ? "selected" : ""}>ប្រុស</option>
-                    <option value="ស្រី" ${scores[sub]=="ស្រី" ? "selected" : ""}>ស្រី</option>
-                </select>
+                <div class="custom-select" tabindex="0">
+                    <input type="hidden" class="cs-value" value="${scores[sub] || ''}">
+                    <div class="cs-trigger">${scores[sub] || ''}</div>
+                    <div class="cs-options">
+                        <div class="cs-option ${scores[sub]=="ប្រុស" ? "selected" : ""}" data-value="ប្រុស">ប្រុស</div>
+                        <div class="cs-option ${scores[sub]=="ស្រី" ? "selected" : ""}" data-value="ស្រី">ស្រី</div>
+                    </div>
+                </div>
             `;
         }
         else if(sub === "PISA"){
@@ -1008,6 +1095,71 @@ function renderScores() {
                 scores[sub] = value;
             }
         };
+
+        // Wire up any custom dropdown(s) in this box so they behave like a native select
+        // but stay styled the same on mobile and desktop.
+        div.querySelectorAll('.custom-select').forEach(cs => {
+            let trigger = cs.querySelector('.cs-trigger');
+            let hiddenInput = cs.querySelector('.cs-value');
+            let optionsBox = cs.querySelector('.cs-options');
+            let options = optionsBox.querySelectorAll('.cs-option');
+
+            // Move the option list out of the scrolling/clipped panel and into a
+            // body-level container, so it's never cut off no matter where the
+            // field sits. We keep our JS references (trigger, hiddenInput,
+            // optionsBox) so everything still behaves like one component.
+            csPortalRoot.appendChild(optionsBox);
+
+            function positionOptions() {
+                let rect = trigger.getBoundingClientRect();
+                optionsBox.style.left = Math.max(4, rect.left) + 'px';
+                optionsBox.style.width = rect.width + 'px';
+                // Flip above the trigger if there isn't enough room below
+                let spaceBelow = window.innerHeight - rect.bottom;
+                if (spaceBelow < 220 && rect.top > spaceBelow) {
+                    optionsBox.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+                    optionsBox.style.top = 'auto';
+                } else {
+                    optionsBox.style.top = (rect.bottom + 4) + 'px';
+                    optionsBox.style.bottom = 'auto';
+                }
+            }
+
+            function toggle() {
+                let wasOpen = optionsBox.classList.contains('cs-open');
+                closeAllCustomSelects();
+                if (!wasOpen) {
+                    positionOptions();
+                    optionsBox.classList.add('cs-open');
+                }
+            }
+
+            cs.addEventListener('click', e => {
+                e.stopPropagation();
+                toggle();
+            });
+
+            options.forEach(opt => {
+                opt.addEventListener('click', e => {
+                    e.stopPropagation();
+                    options.forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    trigger.textContent = opt.dataset.value;
+                    hiddenInput.value = opt.dataset.value;
+                    hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    optionsBox.classList.remove('cs-open');
+                });
+            });
+
+            cs.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle();
+                } else if (e.key === 'Escape') {
+                    optionsBox.classList.remove('cs-open');
+                }
+            });
+        });
 
         if(sub === "ឈ្មោះសាលារៀនឆ្នាំមុន" && isOtherSchool) {
             div.querySelector('#btnResetSchool').onclick = () => {
